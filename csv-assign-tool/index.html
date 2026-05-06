@@ -20,7 +20,7 @@
             <label for="file-input" class="upload-area" id="upload-area">
                 <span class="upload-icon">&#128196;</span>
                 <span class="upload-text">点击选择或拖拽 CSV 文件到此处</span>
-                <span class="upload-hint">编码需为 UTF-8，列顺序：序号,方块名称,总数,组数,盒数</span>
+                <span class="upload-hint">编码需为 UTF-8，列顺序：序号,英文名称,中文名称,总数,组数,盒数</span>
                 <input type="file" id="file-input" accept=".csv" hidden>
             </label>
         </section>
@@ -71,7 +71,8 @@
                         <tr>
                             <th class="col-status">状态</th>
                             <th class="col-idx">#</th>
-                            <th class="col-name">方块名称</th>
+                            <th class="col-name">英文名称</th>
+                            <th class="col-cn-name">中文名称</th>
                             <th class="col-count">总数</th>
                             <th class="col-groups">组数</th>
                             <th class="col-boxes">盒数</th>
@@ -92,6 +93,7 @@
     </div>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="../block-csv-tool/minecraft-translations.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

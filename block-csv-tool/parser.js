@@ -417,10 +417,12 @@
             const boxes = Math.ceil(groups / 27);
             totalGroups += groups;
             totalBoxes += boxes;
+            const chineseName = translateBlockName(name);
             html += `
                 <tr>
                     <td class="col-idx">${index + 1}</td>
                     <td class="col-name">${escapeHTML(name)}</td>
+                    <td class="col-cn-name">${escapeHTML(chineseName)}</td>
                     <td class="col-count">${count.toLocaleString()}</td>
                     <td class="col-groups">${groups.toLocaleString()}</td>
                     <td class="col-boxes">${boxes.toLocaleString()}</td>
@@ -432,7 +434,8 @@
         html += `
             <tr class="summary-row">
                 <td class="col-idx"></td>
-                <td class="col-name">合计 ${rows.length} 种方块</td>
+                <td class="col-name"></td>
+                <td class="col-cn-name">合计 ${rows.length} 种方块</td>
                 <td class="col-count">${total.toLocaleString()}</td>
                 <td class="col-groups">${totalGroups.toLocaleString()}</td>
                 <td class="col-boxes">${totalBoxes.toLocaleString()}</td>
@@ -462,7 +465,7 @@
 
         const info = currentData.info;
         let csv = '\uFEFF'; // BOM for Excel UTF-8
-        csv += '序号,方块名称,总数,组数,盒数\n';
+        csv += '序号,英文名称,中文名称,总数,组数,盒数\n';
 
         let totalGroups = 0;
         let totalBoxes = 0;
@@ -473,11 +476,13 @@
             totalGroups += groups;
             totalBoxes += boxes;
             const escapedName = csvEscape(name);
-            csv += `${index + 1},${escapedName},${count},${groups},${boxes}\n`;
+            const chineseName = translateBlockName(name);
+            const escapedCnName = csvEscape(chineseName);
+            csv += `${index + 1},${escapedName},${escapedCnName},${count},${groups},${boxes}\n`;
         });
 
         // 合计行
-        csv += `,合计 ${currentData.blocks.length} 种方块,${info.nonAirBlocks},${totalGroups},${totalBoxes}\n`;
+        csv += `,,合计 ${currentData.blocks.length} 种方块,${info.nonAirBlocks},${totalGroups},${totalBoxes}\n`;
 
         // 元信息
         csv += '\n';

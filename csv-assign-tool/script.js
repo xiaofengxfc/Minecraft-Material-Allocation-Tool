@@ -37,7 +37,7 @@
     // ==================== 状态 ====================
     const STORAGE_KEY = 'csv_assign_tool_data';
 
-    /** @type {Array<{name:string, count:number, groups:number, boxes:number, done:boolean, assignee:string}>} */
+    /** @type {Array<{name:string, chineseName:string, count:number, groups:number, boxes:number, done:boolean, assignee:string}>} */
     let materials = [];
 
     /** 当前文件名（用于导出命名） */
@@ -84,9 +84,10 @@
     // ==================== CSV 解析 ====================
     /**
      * 解析 CSV 文本为材料数组
-     * 兼容 100w收集_材料表.csv 的输出格式：
-     *   序号,方块名称,总数,组数,盒数
-     *   1,white_stained_glass,1637,26,1
+     * 兼容两种格式：
+     *   新格式：序号,英文名称,中文名称,总数,组数,盒数
+     *   旧格式：序号,方块名称,总数,组数,盒数
+     *   1,white_stained_glass,白色染色玻璃,1637,26,1
      *   ,合计 256 种方块,6733,319,256
      *   (空行)
      *   文件,100w收集.litematic
@@ -101,6 +102,9 @@
         // 规范换行符
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
+        // 检测 CSV 格式：读取表头判断是否有中文名称列
+        let hasChineseColumn = false;
+
         for (const line of lines) {
             // 跳过空行
             const trimmed = line.trim();
@@ -108,14 +112,26 @@
 
             const cols = splitCSVLine(trimmed);
 
+            // 检测表头
+            if (cols.length >= 5) {
+                const headerCol1 = cols[1] ? cols[1].trim() : '';
+                const headerCol2 = cols[2] ? cols[2].trim() : '';
+                if (headerCol1 === '英文名称' && headerCol2 === '中文名称') {
+                    hasChineseColumn = true;
+                }
+            }
+
             // 跳过元数据行（文件、尺寸、方块总数等，以及以逗号开头的合计行）
             if (cols.length < 4) continue;
 
             const seq = cols[0].trim();
             const name = cols[1].trim();
-            const countStr = cols[2].trim();
-            const groupsStr = (cols[3] || '').trim();
-            const boxesStr = (cols[4] || '').trim();
+            const countIdx = hasChineseColumn ? 3 : 2;
+            const groupsIdx = hasChineseColumn ? 4 : 3;
+            const boxesIdx = hasChineseColumn ? 5 : 4;
+            const countStr = (cols[countIdx] || '').trim();
+            const groupsStr = (cols[groupsIdx] || '').trim();
+            const boxesStr = (cols[boxesIdx] || '').trim();
 
             // 跳过表头行
             if (seq === '序号') continue;
@@ -137,8 +153,18 @@
             const groups = parseInt(groupsStr, 10) || 0;
             const boxes = parseInt(boxesStr, 10) || 0;
 
+            // 读取中文名称（新格式从第3列读取，旧格式用翻译表补全）
+            let chineseName = '';
+            if (hasChineseColumn) {
+                chineseName = (cols[2] || '').trim();
+            }
+            if (!chineseName && typeof translateBlockName === 'function') {
+                chineseName = translateBlockName(name);
+            }
+
             rows.push({
                 name: name,
+                chineseName: chineseName,
                 count: count,
                 groups: groups,
                 boxes: boxes,
@@ -241,7 +267,9 @@
                 const countStr = String(m.count);
                 const groupsStr = String(m.groups);
                 const boxesStr = String(m.boxes);
+                const cnName = m.chineseName || '';
                 if (!m.name.toLowerCase().includes(searchTerm) &&
+                    !cnName.toLowerCase().includes(searchTerm) &&
                     !countStr.includes(searchTerm) &&
                     !groupsStr.includes(searchTerm) &&
                     !boxesStr.includes(searchTerm) &&
@@ -296,6 +324,7 @@
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
                     <td class="col-name">${escapeHTML(m.name)}</td>
+                    <td class="col-cn-name">${escapeHTML(m.chineseName || '')}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>
@@ -383,11 +412,12 @@
 
     // ==================== XLSX 导出 ====================
     function exportXLSX() {
-        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '材料收集者'];
+        const headerRow = ['序号', '英文名称', '中文名称', '总数', '组数', '盒数', '材料收集者'];
 
         const dataRows = materials.map((m, index) => [
             index + 1,
             m.name,
+            m.chineseName || '',
             m.count,
             m.groups,
             m.boxes,
@@ -395,7 +425,7 @@
         ]);
 
         const totalDone = materials.filter((m) => m.done).length;
-        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种）', '', '', '', ''];
+        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种）', '', '', '', '', ''];
 
         const allRows = [headerRow, ...dataRows, summaryRow];
 
@@ -404,7 +434,8 @@
         // 设置列宽
         ws['!cols'] = [
             { wch: 8 },   // 序号
-            { wch: 30 },  // 方块名称
+            { wch: 26 },  // 英文名称
+            { wch: 18 },  // 中文名称
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
             { wch: 8 },   // 盒数
