@@ -1,13 +1,13 @@
 /**
  * Litematic → CSV 材料表转换器
  * 
- * 解析 .litematic (GZip + NBT) 文件，提取方块信息并生成 CSV/XLSX 清单。
+ * 解析 .litematic (GZip + NBT) 文件，提取方块信息并生成 CSV 清单。
  * 技术流程：
  *   1. FileReader 读取文件 → ArrayBuffer
  *   2. DecompressionStream 解压 GZip → NBT 原始字节
  *   3. 手写 NBT 解析器 → 结构化数据（支持 TAG_Compound/List/Long_Array 等）
  *   4. 解码 BlockStates packed 长整数数组 → 调色板索引
- *   5. 统计方块 → 生成表格 + 导出 CSV/XLSX
+ *   5. 统计方块 → 生成表格 + 导出 CSV
  */
 
 (function () {
@@ -24,7 +24,6 @@
     const previewSection = document.getElementById('preview-section');
     const tableBody = document.getElementById('table-body');
     const btnExportCsv = document.getElementById('btn-export-csv');
-    const btnExportXlsx = document.getElementById('btn-export-xlsx');
     const btnClear = document.getElementById('btn-clear');
 
     /** 当前解析结果缓存 */
@@ -540,64 +539,6 @@
         URL.revokeObjectURL(url);
     }
 
-    // ==================== XLSX 导出 ====================
-    function exportXLSX() {
-        if (!currentData || !currentData.blocks.length) {
-            alert('没有可导出的数据，请先加载文件');
-            return;
-        }
-
-        const info = currentData.info;
-
-        // 构建数据数组
-        const headerRow = ['序号', '英文名称', '中文名称', '总数', '组数', '盒数'];
-
-        let totalGroups = 0;
-        let totalBoxes = 0;
-
-        const dataRows = currentData.blocks.map(([name, props, count], index) => {
-            const groups = Math.ceil(count / 64);
-            const boxes = Math.ceil(groups / 27);
-            totalGroups += groups;
-            totalBoxes += boxes;
-            const chineseName = translateBlockName(name);
-            return [index + 1, name, chineseName, count, groups, boxes];
-        });
-
-        // 合计行
-        const summaryRow = ['', '', '合计 ' + currentData.blocks.length + ' 种方块', info.nonAirBlocks, totalGroups, totalBoxes];
-
-        // 元信息（空白分隔行）
-        const metaRows = [
-            ['文件信息', ''],
-            ['文件', info.fileName],
-            ['尺寸', info.dimensions],
-            ['方块总数', info.totalBlocks],
-            ['非空气方块', info.nonAirBlocks],
-            ['方块种类', info.uniqueTypes],
-        ];
-
-        const allRows = [headerRow, ...dataRows, summaryRow, [], ...metaRows];
-
-        const ws = XLSX.utils.aoa_to_sheet(allRows);
-
-        // 设置列宽
-        ws['!cols'] = [
-            { wch: 8 },   // 序号
-            { wch: 20 },  // 英文名称
-            { wch: 22 },  // 中文名称
-            { wch: 10 },  // 总数
-            { wch: 8 },   // 组数
-            { wch: 8 },   // 盒数
-        ];
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, '材料表');
-
-        const filename = (info.fileName || 'output').replace(/\.litematic$/i, '') + '_材料表.xlsx';
-        XLSX.writeFile(wb, filename);
-    }
-
     function csvEscape(str) {
         if (!str) return '';
         // 如果包含逗号、引号或换行，需要用引号包裹
@@ -738,6 +679,5 @@
     });
 
     btnExportCsv.addEventListener('click', exportCSV);
-    btnExportXlsx.addEventListener('click', exportXLSX);
     btnClear.addEventListener('click', clearData);
 })();
