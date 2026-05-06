@@ -180,23 +180,37 @@
     /**
      * 合并按名称重复的材料条目
      * 同名材料将 count/groups/boxes 求和，中文名称取第一个非空值
+     * 
+     * 去重策略（解决致命重复bug）：
+     *   - 英文名称大小写不敏感合并（如 White_Stained_Glass 与 white_stained_glass）
+     *   - 中文名称相同也合并（兼容旧格式CSV只有中文名的场景）
+     *   - 去除首尾空白后比较
      */
     function mergeDuplicateMaterials(rows) {
-        const merged = new Map();
+        // 第一轮：按英文名称（小写归一化）合并
+        const byEnglishName = new Map();
+
         for (const row of rows) {
-            const key = row.name;
-            if (merged.has(key)) {
-                const existing = merged.get(key);
+            const nameTrimmed = (row.name || '').trim();
+            if (!nameTrimmed) continue;
+            const key = nameTrimmed.toLowerCase();
+
+            if (byEnglishName.has(key)) {
+                const existing = byEnglishName.get(key);
                 existing.count += row.count;
                 existing.groups += row.groups;
                 existing.boxes += row.boxes;
+                // 保留更规范的大小写形式（优先取首字母大写的）
+                if (/^[A-Z]/.test(row.name) && !/^[A-Z]/.test(existing.name)) {
+                    existing.name = row.name;
+                }
                 if (!existing.chineseName && row.chineseName) {
-                    existing.chineseName = row.chineseName;
+                    existing.chineseName = row.chineseName.trim();
                 }
             } else {
-                merged.set(key, {
-                    name: row.name,
-                    chineseName: row.chineseName,
+                byEnglishName.set(key, {
+                    name: nameTrimmed,
+                    chineseName: (row.chineseName || '').trim(),
                     count: row.count,
                     groups: row.groups,
                     boxes: row.boxes,
@@ -205,7 +219,31 @@
                 });
             }
         }
-        return Array.from(merged.values());
+
+        // 第二轮：按中文名称合并（处理旧格式CSV或只有中文名的条目）
+        const cnSeen = new Map();
+        const result = [];
+
+        for (const [, item] of byEnglishName) {
+            const cnKey = (item.chineseName || '').toLowerCase().trim();
+            if (cnKey && cnSeen.has(cnKey)) {
+                const existing = cnSeen.get(cnKey);
+                existing.count += item.count;
+                existing.groups += item.groups;
+                existing.boxes += item.boxes;
+                // 如果有英文名称的合并到已有条目
+                if (!existing.name && item.name) {
+                    existing.name = item.name;
+                }
+            } else {
+                if (cnKey) {
+                    cnSeen.set(cnKey, item);
+                }
+                result.push(item);
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -355,7 +393,7 @@
                         </button>
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
-                    <td class="col-cn-name">${escapeHTML(m.chineseName || m.name)}</td>
+                    <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>
@@ -511,14 +549,6 @@
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
-    }
-
-    function csvEscape(str) {
-        if (!str) return '';
-        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-            return '"' + str.replace(/"/g, '""') + '"';
-        }
-        return str;
     }
 
     function showToast(message) {
