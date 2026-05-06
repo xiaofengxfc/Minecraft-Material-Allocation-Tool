@@ -523,12 +523,8 @@
 
     // ==================== 初始化 ====================
     function init() {
-        if (loadFromStorage()) {
-            showMainUI();
-            renderAll();
-        } else {
-            showUploadUI();
-        }
+        // 始终先显示上传界面，只有导入CSV后才显示进度和材料列表
+        showUploadUI();
     }
 
     init();
