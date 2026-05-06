@@ -245,8 +245,7 @@
                     !countStr.includes(searchTerm) &&
                     !groupsStr.includes(searchTerm) &&
                     !boxesStr.includes(searchTerm) &&
-                    !idxStr.includes(searchTerm) &&
-                    !m.assignee.toLowerCase().includes(searchTerm)) {
+                    !idxStr.includes(searchTerm)) {
                     return false;
                 }
             }
@@ -300,15 +299,6 @@
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>
-                    <td class="col-assign">
-                        <div class="assigned-cell">
-                            <span class="assigned-name"
-                                  contenteditable="true"
-                                  data-action="assign"
-                                  data-index="${originalIndex}"
-                                  spellcheck="false">${escapeHTML(m.assignee)}</span>
-                        </div>
-                    </td>
                 </tr>`;
             });
             tableBody.innerHTML = html;
@@ -323,12 +313,6 @@
         progressPercent.textContent = pct + '%';
         progressFill.style.width = pct + '%';
         progressDetail.textContent = `${done} / ${total} 种材料已完成`;
-
-        // 统计分配情况
-        const assigned = materials.filter((m) => m.assignee.trim()).length;
-        if (assigned > 0 && total > 0) {
-            progressDetail.textContent += `，${assigned} 种已分配`;
-        }
     }
 
     function renderStats() {
@@ -353,39 +337,6 @@
         materials[index].done = !materials[index].done;
         saveToStorage();
         renderAll();
-    });
-
-    tableBody.addEventListener('input', (e) => {
-        const span = e.target.closest('[data-action="assign"]');
-        if (!span) return;
-
-        const index = parseInt(span.getAttribute('data-index'), 10);
-        if (isNaN(index) || index < 0 || index >= materials.length) return;
-
-        materials[index].assignee = span.textContent.trim();
-        saveToStorage();
-        renderStats();
-        renderProgress();
-    });
-
-    tableBody.addEventListener('blur', (e) => {
-        const span = e.target.closest('[data-action="assign"]');
-        if (!span) return;
-
-        const index = parseInt(span.getAttribute('data-index'), 10);
-        if (isNaN(index) || index < 0 || index >= materials.length) return;
-
-        // 重新设置文本（清理多余空白）
-        span.textContent = materials[index].assignee;
-    }, true);
-
-    // 键盘 Enter 确认分配人编辑
-    tableBody.addEventListener('keydown', (e) => {
-        const span = e.target.closest('[data-action="assign"]');
-        if (!span || e.key !== 'Enter') return;
-
-        e.preventDefault();
-        span.blur();
     });
 
     // 搜索输入
@@ -432,7 +383,7 @@
 
     // ==================== XLSX 导出 ====================
     function exportXLSX() {
-        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '分配人'];
+        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '材料收集者'];
 
         const dataRows = materials.map((m, index) => [
             index + 1,
@@ -457,7 +408,7 @@
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
             { wch: 8 },   // 盒数
-            { wch: 12 }   // 分配人
+            { wch: 12 }   // 材料收集者
         ];
 
         const wb = XLSX.utils.book_new();

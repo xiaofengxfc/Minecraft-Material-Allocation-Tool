@@ -417,7 +417,6 @@ body {
 .col-count  { width: 80px; text-align: right; }
 .col-groups { width: 70px; text-align: right; }
 .col-boxes  { width: 70px; text-align: right; }
-.col-assign { width: 100px; }
 
 /* Cells */
 .material-table .col-idx {
@@ -450,44 +449,6 @@ body {
 
 .completed .col-count {
     color: var(--green-deep);
-}
-
-/* Assign input */
-.assigned-cell {
-    position: relative;
-}
-
-.assigned-name {
-    display: block;
-    padding: 3px 8px;
-    font-size: 0.8rem;
-    color: var(--text);
-    background: var(--brown-light);
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-    cursor: text;
-    min-width: 60px;
-    min-height: 26px;
-    line-height: 1.4;
-    transition: border-color var(--transition), background var(--transition);
-}
-
-.assigned-name:hover {
-    border-color: var(--border);
-    background: #faf8f5;
-}
-
-.assigned-name:focus {
-    outline: none;
-    border-color: var(--brown-mid);
-    background: var(--surface);
-    box-shadow: 0 0 0 2px rgba(122,100,80,0.12);
-}
-
-.assigned-name:empty::before {
-    content: '点击分配';
-    color: var(--text-muted);
-    font-style: italic;
 }
 
 /* Status checkbox button */
