@@ -28,7 +28,7 @@
     const btnClear = document.getElementById('btn-clear');
 
     /** 当前解析结果缓存 */
-    let currentData = null; // { info, blocks }  blocks 是 [name, props, count][]
+    let currentData = null; // { info, blocks, unmatchedNames }  blocks 是 [name, props, count][]
 
     // ==================== GZip 解压 ====================
     async function gunzip(arrayBuffer) {
@@ -376,6 +376,16 @@
                 .map(([name, count]) => [name, '', count])
                 .sort((a, b) => b[2] - a[2]);
 
+            // 收集没有中文翻译的英文名称
+            const unmatchedNames = [];
+            sorted.forEach(([name]) => {
+                const chineseName = translateBlockName(name);
+                if (!chineseName) {
+                    unmatchedNames.push(name);
+                    console.error('[翻译缺失] 英文名称 "' + name + '" 没有对应的中文翻译');
+                }
+            });
+
             // 缓存数据
             currentData = {
                 info: {
@@ -386,10 +396,14 @@
                     uniqueTypes: sorted.length,
                 },
                 blocks: sorted,
+                unmatchedNames: unmatchedNames,
             };
 
             // 渲染表格
             renderTable(sorted);
+
+            // 显示翻译缺失警告
+            showTranslationWarning(unmatchedNames);
 
             showProgress(100, '完成');
             setTimeout(() => {
@@ -399,6 +413,7 @@
 
         } catch (err) {
             progressSection.classList.add('hidden');
+            hideTranslationWarning();
             alert('解析失败：' + err.message);
             console.error(err);
         }
@@ -469,6 +484,7 @@
         previewSection.classList.add('hidden');
         tableBody.innerHTML = '';
         currentData = null;
+        hideTranslationWarning();
     }
 
     function showProgress(percent, text) {
@@ -603,6 +619,82 @@
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     }
 
+    // ==================== 翻译警告 & 日志下载 ====================
+    function showTranslationWarning(unmatchedNames) {
+        const warningSection = document.getElementById('translation-warning');
+        const warningList = document.getElementById('warning-list');
+        const warningCount = document.getElementById('warning-count');
+        const btnDownloadLog = document.getElementById('btn-download-log');
+
+        if (!unmatchedNames || unmatchedNames.length === 0) {
+            hideTranslationWarning();
+            return;
+        }
+
+        warningCount.textContent = unmatchedNames.length;
+        const warningCountText = document.getElementById('warning-count-text');
+        if (warningCountText) {
+            warningCountText.textContent = unmatchedNames.length;
+        }
+        warningList.textContent = unmatchedNames.join('、');
+
+        warningSection.classList.remove('hidden');
+
+        // 绑定下载事件（每次更新前先解绑旧事件）
+        const newBtn = btnDownloadLog.cloneNode(true);
+        btnDownloadLog.parentNode.replaceChild(newBtn, btnDownloadLog);
+        newBtn.addEventListener('click', function () {
+            downloadTranslationLog(unmatchedNames);
+        });
+    }
+
+    function hideTranslationWarning() {
+        const warningSection = document.getElementById('translation-warning');
+        if (warningSection) {
+            warningSection.classList.add('hidden');
+        }
+    }
+
+    function downloadTranslationLog(unmatchedNames) {
+        const now = new Date();
+        const timestamp = now.getFullYear()
+            + ('0' + (now.getMonth() + 1)).slice(-2)
+            + ('0' + now.getDate()).slice(-2)
+            + '_'
+            + ('0' + now.getHours()).slice(-2)
+            + ('0' + now.getMinutes()).slice(-2)
+            + ('0' + now.getSeconds()).slice(-2);
+
+        const info = currentData ? currentData.info : { fileName: 'unknown' };
+        const baseName = (info.fileName || 'output').replace(/\.litematic$/i, '');
+
+        let log = '\uFEFF'; // BOM for UTF-8
+        log += '================================================================\n';
+        log += '  Litematic 材料表转换器 - 翻译缺失日志\n';
+        log += '================================================================\n';
+        log += '生成时间: ' + now.toLocaleString('zh-CN') + '\n';
+        log += '源文件:   ' + (info.fileName || '未知') + '\n';
+        log += '----------------------------------------------------------------\n';
+        log += '以下英文名称在翻译映射表中未找到对应的中文翻译：\n';
+        log += '----------------------------------------------------------------\n';
+        unmatchedNames.forEach(function (name, index) {
+            log += (index + 1) + '. ' + name + '\n';
+        });
+        log += '----------------------------------------------------------------\n';
+        log += '共计 ' + unmatchedNames.length + ' 个方块缺少中文翻译\n';
+        log += '================================================================\n';
+
+        const blob = new Blob([log], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = baseName + '_翻译缺失日志_' + timestamp + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
     function clearData() {
         currentData = null;
         tableBody.innerHTML = '';
@@ -610,6 +702,7 @@
         infoSection.classList.add('hidden');
         previewSection.classList.add('hidden');
         progressSection.classList.add('hidden');
+        hideTranslationWarning();
     }
 
     // ==================== 事件绑定 ====================

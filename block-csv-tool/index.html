@@ -34,6 +34,21 @@
             <p class="progress-text" id="progress-text"></p>
         </section>
 
+        <section class="warning-section hidden" id="translation-warning">
+            <div class="warning-header">
+                <span class="warning-icon">⚠️</span>
+                <h2>翻译缺失警告</h2>
+                <span class="warning-badge" id="warning-count">0</span>
+            </div>
+            <p class="warning-message">
+                以下 <strong id="warning-count-text">0</strong> 个英文名称未找到对应的中文翻译，请在表格中确认：
+            </p>
+            <div class="warning-list" id="warning-list"></div>
+            <div class="warning-actions">
+                <button class="btn btn-warning" id="btn-download-log">📥 下载翻译缺失日志</button>
+            </div>
+        </section>
+
         <section class="preview-section hidden" id="preview-section">
             <div class="section-header">
                 <h2>材料清单预览</h2>
