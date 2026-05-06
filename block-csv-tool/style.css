@@ -310,16 +310,9 @@ body {
     word-break: break-all;
 }
 
-.block-table .col-props {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
-    max-width: 260px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.block-table .col-count {
+.block-table .col-count,
+.block-table .col-groups,
+.block-table .col-boxes {
     font-weight: 700;
     color: var(--accent);
     text-align: right;
@@ -387,9 +380,6 @@ body {
         font-size: 0.8rem;
     }
 
-    .block-table .col-props {
-        max-width: 140px;
-    }
 
     .section-header {
         flex-direction: column;

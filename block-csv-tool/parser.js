@@ -409,13 +409,21 @@
 
     function renderTable(rows) {
         let html = '';
+        let totalGroups = 0;
+        let totalBoxes = 0;
+
         rows.forEach(([name, props, count], index) => {
+            const groups = Math.ceil(count / 64);
+            const boxes = Math.ceil(groups / 27);
+            totalGroups += groups;
+            totalBoxes += boxes;
             html += `
                 <tr>
                     <td class="col-idx">${index + 1}</td>
                     <td class="col-name">${escapeHTML(name)}</td>
-                    <td class="col-props" title="${escapeHTML(props)}">${escapeHTML(props) || '—'}</td>
                     <td class="col-count">${count.toLocaleString()}</td>
+                    <td class="col-groups">${groups.toLocaleString()}</td>
+                    <td class="col-boxes">${boxes.toLocaleString()}</td>
                 </tr>`;
         });
 
@@ -424,8 +432,10 @@
         html += `
             <tr class="summary-row">
                 <td class="col-idx"></td>
-                <td class="col-name" colspan="2">合计 ${rows.length} 种方块</td>
+                <td class="col-name">合计 ${rows.length} 种方块</td>
                 <td class="col-count">${total.toLocaleString()}</td>
+                <td class="col-groups">${totalGroups.toLocaleString()}</td>
+                <td class="col-boxes">${totalBoxes.toLocaleString()}</td>
             </tr>`;
 
         tableBody.innerHTML = html;
@@ -452,16 +462,22 @@
 
         const info = currentData.info;
         let csv = '\uFEFF'; // BOM for Excel UTF-8
-        csv += '序号,方块名称,属性,数量\n';
+        csv += '序号,方块名称,总数,组数,盒数\n';
+
+        let totalGroups = 0;
+        let totalBoxes = 0;
 
         currentData.blocks.forEach(([name, props, count], index) => {
+            const groups = Math.ceil(count / 64);
+            const boxes = Math.ceil(groups / 27);
+            totalGroups += groups;
+            totalBoxes += boxes;
             const escapedName = csvEscape(name);
-            const escapedProps = csvEscape(props);
-            csv += `${index + 1},${escapedName},${escapedProps},${count}\n`;
+            csv += `${index + 1},${escapedName},${count},${groups},${boxes}\n`;
         });
 
         // 合计行
-        csv += `,合计 ${currentData.blocks.length} 种方块,,${info.nonAirBlocks}\n`;
+        csv += `,合计 ${currentData.blocks.length} 种方块,${info.nonAirBlocks},${totalGroups},${totalBoxes}\n`;
 
         // 元信息
         csv += '\n';
