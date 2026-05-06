@@ -168,6 +168,28 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'red_shulker_box': '红色潜影盒',
     'black_shulker_box': '黑色潜影盒',
     'chiseled_bookshelf': '錾制书架',
+    // 各木种书架 (1.21.5)
+    'oak_shelf': '橡木书架',
+    'spruce_shelf': '云杉木书架',
+    'birch_shelf': '白桦木书架',
+    'jungle_shelf': '丛林木书架',
+    'acacia_shelf': '金合欢木书架',
+    'dark_oak_shelf': '深色橡木书架',
+    'pale_oak_shelf': '苍白橡木书架',
+    'mangrove_shelf': '红树木书架',
+    'cherry_shelf': '樱花木书架',
+    'crimson_shelf': '绯红木书架',
+    'warped_shelf': '诡异木书架',
+    'bamboo_shelf': '竹书架',
+    // 铜箱子 (1.21.5)
+    'copper_chest': '铜箱子',
+    'exposed_copper_chest': '斑驳的铜箱子',
+    'weathered_copper_chest': '锈蚀的铜箱子',
+    'oxidized_copper_chest': '氧化的铜箱子',
+    'waxed_copper_chest': '涂蜡铜箱子',
+    'waxed_exposed_copper_chest': '斑驳的涂蜡铜箱子',
+    'waxed_weathered_copper_chest': '锈蚀的涂蜡铜箱子',
+    'waxed_oxidized_copper_chest': '氧化的涂蜡铜箱子',
 
     // ===== 门 =====
     'iron_door': '铁门',
@@ -268,6 +290,11 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'chiseled_stone_bricks': '錾制石砖',
     'stone_stairs': '石头楼梯',
     'stone_slab': '石头台阶',
+    // 砖块
+    'bricks': '砖块',
+    'brick_slab': '砖台阶',
+    'brick_stairs': '砖楼梯',
+    'brick_wall': '砖墙',
 
     // ===== 花岗岩 / 闪长岩 / 安山岩 =====
     'granite': '花岗岩',
@@ -381,6 +408,33 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'exposed_copper_bulb': '斑驳的铜灯',
     'weathered_copper_bulb': '锈蚀的铜灯',
     'oxidized_copper_bulb': '氧化的铜灯',
+    // 铜锁链 (1.21.5)
+    'copper_chain': '铜锁链',
+    'exposed_copper_chain': '斑驳的铜锁链',
+    'weathered_copper_chain': '锈蚀的铜锁链',
+    'oxidized_copper_chain': '氧化的铜锁链',
+    'waxed_copper_chain': '涂蜡铜锁链',
+    'waxed_exposed_copper_chain': '斑驳的涂蜡铜锁链',
+    'waxed_weathered_copper_chain': '锈蚀的涂蜡铜锁链',
+    'waxed_oxidized_copper_chain': '氧化的涂蜡铜锁链',
+    // 铜栏杆 (1.21.5)
+    'copper_bars': '铜栏杆',
+    'exposed_copper_bars': '斑驳的铜栏杆',
+    'weathered_copper_bars': '锈蚀的铜栏杆',
+    'oxidized_copper_bars': '氧化的铜栏杆',
+    'waxed_copper_bars': '涂蜡铜栏杆',
+    'waxed_exposed_copper_bars': '斑驳的涂蜡铜栏杆',
+    'waxed_weathered_copper_bars': '锈蚀的涂蜡铜栏杆',
+    'waxed_oxidized_copper_bars': '氧化的涂蜡铜栏杆',
+    // 铜傀儡雕像 (1.21.5)
+    'copper_golem_statue': '铜傀儡雕像',
+    'exposed_copper_golem_statue': '斑驳的铜傀儡雕像',
+    'weathered_copper_golem_statue': '锈蚀的铜傀儡雕像',
+    'oxidized_copper_golem_statue': '氧化的铜傀儡雕像',
+    'waxed_copper_golem_statue': '涂蜡铜傀儡雕像',
+    'waxed_exposed_copper_golem_statue': '斑驳的涂蜡铜傀儡雕像',
+    'waxed_weathered_copper_golem_statue': '锈蚀的涂蜡铜傀儡雕像',
+    'waxed_oxidized_copper_golem_statue': '氧化的涂蜡铜傀儡雕像',
     // 涂蜡铜
     'waxed_copper_block': '涂蜡铜块',
     'waxed_exposed_copper': '斑驳的涂蜡铜块',
@@ -611,9 +665,18 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'conduit': '潮涌核心',
     'end_rod': '末地烛',
     'lightning_rod': '避雷针',
+    'exposed_lightning_rod': '斑驳的避雷针',
+    'weathered_lightning_rod': '锈蚀的避雷针',
+    'oxidized_lightning_rod': '氧化的避雷针',
+    'waxed_lightning_rod': '涂蜡避雷针',
+    'waxed_exposed_lightning_rod': '斑驳的涂蜡避雷针',
+    'waxed_weathered_lightning_rod': '锈蚀的涂蜡避雷针',
+    'waxed_oxidized_lightning_rod': '氧化的涂蜡避雷针',
     'decorated_pot': '饰纹陶罐',
     'sniffer_egg': '嗅探兽蛋',
+    'turtle_egg': '海龟蛋',
     'creaking_heart': '吱吱作响之心',
+    'dried_ghast': '干燥恶魂',
 
     // ===== 光源 =====
     'torch': '火把',
@@ -665,6 +728,16 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'green_candle_cake': '插上绿色蜡烛的蛋糕',
     'red_candle_cake': '插上红色蜡烛的蛋糕',
     'black_candle_cake': '插上黑色蜡烛的蛋糕',
+    // 铜灯笼 / 铜火把 (1.21.5)
+    'copper_lantern': '铜灯笼',
+    'exposed_copper_lantern': '斑驳的铜灯笼',
+    'weathered_copper_lantern': '锈蚀的铜灯笼',
+    'oxidized_copper_lantern': '氧化的铜灯笼',
+    'waxed_copper_lantern': '涂蜡铜灯笼',
+    'waxed_exposed_copper_lantern': '斑驳的涂蜡铜灯笼',
+    'waxed_weathered_copper_lantern': '锈蚀的涂蜡铜灯笼',
+    'waxed_oxidized_copper_lantern': '氧化的涂蜡铜灯笼',
+    'copper_wall_torch': '墙上的铜火把',
 
     // ===== 农作物 / 植物 =====
     'wheat': '小麦植株',
@@ -691,10 +764,12 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'kelp': '海带',
     'kelp_plant': '海带植株',
     'sea_pickle': '海泡菜',
+    'dried_kelp_block': '干海带块',
     'nether_wart': '下界疣植株',
     'cocoa': '可可果',
     // 花
     'grass': '草',
+    'short_grass': '短草',
     'tall_grass': '高草丛',
     'short_dry_grass': '短干草',
     'tall_dry_grass': '高干草',
@@ -963,6 +1038,8 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     // ===== 铁制品装饰 =====
     'iron_bars': '铁栏杆',
     'chain': '锁链',
+    'iron_chain': '铁锁链',
+    'cobweb': '蜘蛛网',
 
     // ===== 泥土 / 耕地 / 泥巴 (1.19) =====
     'dirt': '泥土',
@@ -1039,6 +1116,8 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'crying_obsidian': '哭泣的黑曜石',
     'slime_block': '粘液块',
     'honey_block': '蜂蜜块',
+    'hay_block': '干草块',
+    'honeycomb_block': '蜜脾块',
     'bone_block': '骨块',
     'bee_nest': '蜂巢',
     'beehive': '蜂箱',
