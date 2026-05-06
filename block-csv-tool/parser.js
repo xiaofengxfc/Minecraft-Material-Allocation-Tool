@@ -89,11 +89,11 @@
         }
 
         readLong() {
-            // JavaScript 的 64 位整数用 BigInt
-            const hi = this.data.getInt32(this.pos, false);
-            const lo = this.data.getUint32(this.pos + 4, false);
+            // NBT TAG_Long: signed 64-bit big-endian
+            // 使用 getBigInt64 获得完整有符号值（Chrome 67+ / Firefox 68+）
+            const v = this.data.getBigInt64(this.pos, false);
             this.pos += 8;
-            return (BigInt(hi) << 32n) | BigInt(lo);
+            return v;
         }
 
         readFloat() {
@@ -191,6 +191,12 @@
      *   已验证：56544 × 9 = 508896, ceil(508896/64) = 7952 ✓
      */
     function decodeBlockIndices(blockStatesLongs, paletteSize, totalBlocks) {
+        // 防护：totalBlocks 必须为合法的正整数
+        if (!Number.isInteger(totalBlocks) || totalBlocks <= 0 || totalBlocks >= 0xFFFFFFFF) {
+            console.error('无效的 totalBlocks 值：' + totalBlocks);
+            throw new Error('方块数量数据异常（' + totalBlocks + '），请检查文件是否损坏');
+        }
+
         if (paletteSize <= 1) {
             return new Array(totalBlocks).fill(0);
         }
