@@ -2,13 +2,12 @@
  * 材料分配表 — 核心逻辑
  * 
  * 功能：
- *   1. CSV 导入解析（兼容 100w收集_材料表.csv 格式）
+ *   1. CSV 导入解析（兼容 Litematic 材料表转换器导出的格式）
  *   2. 材料状态标记（完成/未完成）
- *   3. 分配人编辑
- *   4. 搜索与筛选
- *   5. 进度统计
- *   6. 导出含状态的 XLSX
- *   7. localStorage 持久化
+ *   3. 搜索与筛选
+ *   4. 进度统计
+ *   5. 导出含状态的 XLSX
+ *   6. localStorage 持久化
  */
 
 (function () {
@@ -84,14 +83,17 @@
     // ==================== CSV 解析 ====================
     /**
      * 解析 CSV 文本为材料数组
-     * 兼容两种格式：
-     *   新格式：序号,英文名称,中文名称,总数,组数,盒数
-     *   旧格式：序号,方块名称,总数,组数,盒数
-     *   1,white_stained_glass,白色染色玻璃,1637,26,1
-     *   ,合计 256 种方块,6733,319,256
+     * 
+     * 新格式（无英文名称列）：
+     *   序号,中文名称,总数,组数,盒数
+     *   1,白色染色玻璃,1637,26,1
+     *   ,,合计 256 种方块,6733,319,256
      *   (空行)
      *   文件,100w收集.litematic
      *   尺寸,...
+     * 
+     * 旧格式（有英文名称列，兼容）：
+     *   序号,英文名称,中文名称,总数,组数,盒数
      */
     function parseCSV(text) {
         const rows = [];
@@ -102,8 +104,8 @@
         // 规范换行符
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
-        // 检测 CSV 格式：读取表头判断是否有中文名称列
-        let hasChineseColumn = false;
+        // 检测 CSV 格式：读取表头判断是否有英文名称列
+        let hasEnglishColumn = false;
 
         for (const line of lines) {
             // 跳过空行
@@ -113,22 +115,45 @@
             const cols = splitCSVLine(trimmed);
 
             // 检测表头
-            if (cols.length >= 5) {
+            if (cols.length >= 4) {
                 const headerCol1 = cols[1] ? cols[1].trim() : '';
                 const headerCol2 = cols[2] ? cols[2].trim() : '';
-                if (headerCol1 === '英文名称' && headerCol2 === '中文名称') {
-                    hasChineseColumn = true;
+                if (headerCol1 === '英文名称') {
+                    hasEnglishColumn = true;
                 }
+                // 新格式表头：序号,中文名称,... (col1='中文名称')
+                // 旧格式表头：序号,英文名称,中文名称,... (col1='英文名称', col2='中文名称')
+                break;
             }
+        }
 
-            // 跳过元数据行（文件、尺寸、方块总数等，以及以逗号开头的合计行）
-            if (cols.length < 4) continue;
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+
+            const cols = splitCSVLine(trimmed);
+
+            if (cols.length < 3) continue;
 
             const seq = cols[0].trim();
-            const name = cols[1].trim();
-            const countIdx = hasChineseColumn ? 3 : 2;
-            const groupsIdx = hasChineseColumn ? 4 : 3;
-            const boxesIdx = hasChineseColumn ? 5 : 4;
+
+            // 确定各列索引
+            let cnColIdx, countIdx, groupsIdx, boxesIdx;
+            if (hasEnglishColumn) {
+                // 旧格式：序号,英文名称,中文名称,总数,组数,盒数
+                cnColIdx = 2;
+                countIdx = 3;
+                groupsIdx = 4;
+                boxesIdx = 5;
+            } else {
+                // 新格式：序号,中文名称,总数,组数,盒数
+                cnColIdx = 1;
+                countIdx = 2;
+                groupsIdx = 3;
+                boxesIdx = 4;
+            }
+
+            const chineseName = (cols[cnColIdx] || '').trim();
             const countStr = (cols[countIdx] || '').trim();
             const groupsStr = (cols[groupsIdx] || '').trim();
             const boxesStr = (cols[boxesIdx] || '').trim();
@@ -136,30 +161,33 @@
             // 跳过表头行
             if (seq === '序号') continue;
 
-            // 跳过合计行（序号列为空或以"合计"开头）
-            if (!seq || seq.startsWith('合计')) continue;
+            // 跳过合计行（序号列为空、中文名称列以"合计"开头）
+            if (!seq) continue;
+            if (seq.startsWith('合计') || chineseName.startsWith('合计')) continue;
 
-            // 跳过元数据标签（文件、尺寸、方块总数、非空气方块、方块种类）
+            // 跳过元数据标签
             if (seq === '文件' || seq === '尺寸' || seq === '方块总数' ||
                 seq === '非空气方块' || seq === '方块种类') {
-                if (name) sourceFileName = name.replace(/\.litematic$/i, '');
+                if (chineseName) sourceFileName = chineseName.replace(/\.litematic$/i, '');
                 continue;
             }
 
             const count = parseInt(countStr, 10);
             if (isNaN(count) || count <= 0) continue;
-            if (!name) continue;
+            if (!chineseName) continue;
 
             const groups = parseInt(groupsStr, 10) || 0;
             const boxes = parseInt(boxesStr, 10) || 0;
 
-            // 读取中文名称（新格式从第3列读取，旧格式用翻译表补全）
-            let chineseName = '';
-            if (hasChineseColumn) {
-                chineseName = (cols[2] || '').trim();
-            }
-            if (!chineseName && typeof translateBlockName === 'function') {
-                chineseName = translateBlockName(name);
+            // 用中文名称作为主键（name），chineseName 也保留
+            // translateBlockName 用于兜底翻译
+            let name = chineseName;
+            // 如果是旧格式有英文名称列，尝试读取
+            if (hasEnglishColumn) {
+                const enName = (cols[1] || '').trim();
+                if (enName && enName !== '英文名称') {
+                    name = enName;
+                }
             }
 
             rows.push({
@@ -178,40 +206,25 @@
     }
 
     /**
-     * 合并按名称重复的材料条目
-     * 同名材料将 count 求和，然后重新计算 groups/boxes
-     * 
-     * 去重策略（解决致命重复bug）：
-     *   - 英文名称大小写不敏感合并（如 White_Stained_Glass 与 white_stained_glass）
-     *   - 中文名称相同也合并（兼容旧格式CSV只有中文名的场景）
-     *   - 去除首尾空白后比较
-     *   - **关键修复**：合并后从 count 重新计算 groups/boxes，
-     *     而非简单求和（求和会导致组数/盒数虚高）
-     *     groups = ceil(count / 64), boxes = ceil(groups / 27)
+     * 合并按中文名称重复的材料条目
+     * 去重策略：
+     *   - 按 chineseName 合并（大小写不敏感）
+     *   - 合并后从 count 重新计算 groups/boxes
      */
     function mergeDuplicateMaterials(rows) {
-        // 第一轮：按英文名称（小写归一化）合并 count
-        const byEnglishName = new Map();
+        const map = new Map();
 
         for (const row of rows) {
-            const nameTrimmed = (row.name || '').trim();
-            if (!nameTrimmed) continue;
-            const key = nameTrimmed.toLowerCase();
+            const cnKey = (row.chineseName || '').toLowerCase().trim();
+            if (!cnKey) continue;
 
-            if (byEnglishName.has(key)) {
-                const existing = byEnglishName.get(key);
+            if (map.has(cnKey)) {
+                const existing = map.get(cnKey);
                 existing.count += row.count;
-                // 保留更规范的大小写形式（优先取首字母大写的）
-                if (/^[A-Z]/.test(row.name) && !/^[A-Z]/.test(existing.name)) {
-                    existing.name = row.name;
-                }
-                if (!existing.chineseName && row.chineseName) {
-                    existing.chineseName = row.chineseName.trim();
-                }
             } else {
-                byEnglishName.set(key, {
-                    name: nameTrimmed,
-                    chineseName: (row.chineseName || '').trim(),
+                map.set(cnKey, {
+                    name: row.chineseName,
+                    chineseName: row.chineseName,
                     count: row.count,
                     done: row.done,
                     assignee: row.assignee,
@@ -219,27 +232,9 @@
             }
         }
 
-        // 第二轮：按中文名称合并（处理旧格式CSV或只有中文名的条目）
-        const cnSeen = new Map();
-        const merged = [];
+        const merged = Array.from(map.values());
 
-        for (const [, item] of byEnglishName) {
-            const cnKey = (item.chineseName || '').toLowerCase().trim();
-            if (cnKey && cnSeen.has(cnKey)) {
-                const existing = cnSeen.get(cnKey);
-                existing.count += item.count;
-                if (!existing.name && item.name) {
-                    existing.name = item.name;
-                }
-            } else {
-                if (cnKey) {
-                    cnSeen.set(cnKey, item);
-                }
-                merged.push(item);
-            }
-        }
-
-        // 从合并后的 count 重新计算 groups 和 boxes（避免求和导致的数字虚高）
+        // 从合并后的 count 重新计算 groups 和 boxes
         for (const item of merged) {
             item.groups = Math.ceil(item.count / 64);
             item.boxes = Math.ceil(item.groups / 27);
@@ -340,8 +335,7 @@
                 const groupsStr = String(m.groups);
                 const boxesStr = String(m.boxes);
                 const cnName = m.chineseName || '';
-                if (!m.name.toLowerCase().includes(searchTerm) &&
-                    !cnName.toLowerCase().includes(searchTerm) &&
+                if (!cnName.toLowerCase().includes(searchTerm) &&
                     !countStr.includes(searchTerm) &&
                     !groupsStr.includes(searchTerm) &&
                     !boxesStr.includes(searchTerm) &&
@@ -395,7 +389,6 @@
                         </button>
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
-                    <td class="col-name">${escapeHTML(m.name)}</td>
                     <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
@@ -484,11 +477,10 @@
 
     // ==================== XLSX 导出 ====================
     function exportXLSX() {
-        const headerRow = ['序号', '英文名称', '中文名称', '总数', '组数', '盒数', '材料收集者'];
+        const headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料收集者'];
 
         const dataRows = materials.map((m, index) => [
             index + 1,
-            m.name,
             m.chineseName || '',
             m.count,
             m.groups,
@@ -506,8 +498,7 @@
         // 设置列宽
         ws['!cols'] = [
             { wch: 8 },   // 序号
-            { wch: 26 },  // 英文名称
-            { wch: 18 },  // 中文名称
+            { wch: 22 },  // 中文名称
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
             { wch: 8 },   // 盒数

@@ -413,7 +413,6 @@ body {
 /* Column widths */
 .col-status  { width: 52px; text-align: center; }
 .col-idx     { width: 44px; text-align: center; }
-.col-name    { width: 160px; }
 .col-cn-name { width: auto; }
 .col-count   { width: 80px; text-align: right; }
 .col-groups  { width: 70px; text-align: right; }
@@ -422,13 +421,6 @@ body {
 /* Cells */
 .material-table .col-idx {
     color: var(--text-muted);
-}
-
-.material-table .col-name {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    word-break: break-all;
-    font-family: "SF Mono", "Cascadia Code", "Consolas", monospace;
 }
 
 .material-table .col-cn-name {

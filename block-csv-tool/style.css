@@ -304,10 +304,10 @@ body {
     text-align: center;
 }
 
-.block-table .col-name {
+.block-table .col-cn-name {
     font-weight: 500;
     color: var(--text);
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .block-table .col-count,
