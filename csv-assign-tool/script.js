@@ -2,12 +2,12 @@
  * 材料分配表 — 核心逻辑
  * 
  * 功能：
- *   1. CSV 导入解析（兼容 block-csv-tool 输出格式）
+ *   1. CSV 导入解析（兼容 100w收集_材料表.csv 格式）
  *   2. 材料状态标记（完成/未完成）
  *   3. 分配人编辑
  *   4. 搜索与筛选
  *   5. 进度统计
- *   6. 导出含状态的 CSV
+ *   6. 导出含状态的 XLSX
  *   7. localStorage 持久化
  */
 
@@ -37,7 +37,7 @@
     // ==================== 状态 ====================
     const STORAGE_KEY = 'csv_assign_tool_data';
 
-    /** @type {Array<{name:string, props:string, count:number, done:boolean, assignee:string}>} */
+    /** @type {Array<{name:string, count:number, groups:number, boxes:number, done:boolean, assignee:string}>} */
     let materials = [];
 
     /** 当前文件名（用于导出命名） */
@@ -64,6 +64,11 @@
             if (data && Array.isArray(data.materials) && data.materials.length > 0) {
                 sourceFileName = data.sourceFileName || 'materials';
                 materials = data.materials;
+                // 迁移旧数据：如果使用旧格式（有props字段），清除后重新导入
+                if (materials.length > 0 && 'props' in materials[0] && !('groups' in materials[0])) {
+                    clearStorage();
+                    return false;
+                }
                 return true;
             }
         } catch (e) {
@@ -79,16 +84,20 @@
     // ==================== CSV 解析 ====================
     /**
      * 解析 CSV 文本为材料数组
-     * 兼容 block-csv-tool 的输出格式：
-     *   序号,方块名称,属性,数量
-     *   1,stone,,64
-     *   ,合计 5 种方块,,320
+     * 兼容 100w收集_材料表.csv 的输出格式：
+     *   序号,方块名称,总数,组数,盒数
+     *   1,white_stained_glass,1637,26,1
+     *   ,合计 256 种方块,6733,319,256
      *   (空行)
-     *   文件,xxx.litematic
+     *   文件,100w收集.litematic
      *   尺寸,...
      */
     function parseCSV(text) {
         const rows = [];
+        // 去除 BOM
+        if (text.charCodeAt(0) === 0xFEFF) {
+            text = text.slice(1);
+        }
         // 规范换行符
         const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
@@ -104,11 +113,12 @@
 
             const seq = cols[0].trim();
             const name = cols[1].trim();
-            const props = cols[2].trim();
-            const countStr = cols[3].trim();
+            const countStr = cols[2].trim();
+            const groupsStr = (cols[3] || '').trim();
+            const boxesStr = (cols[4] || '').trim();
 
             // 跳过表头行
-            if (seq === '序号' && name === '方块名称') continue;
+            if (seq === '序号') continue;
 
             // 跳过合计行（序号列为空或以"合计"开头）
             if (!seq || seq.startsWith('合计')) continue;
@@ -124,10 +134,14 @@
             if (isNaN(count) || count <= 0) continue;
             if (!name) continue;
 
+            const groups = parseInt(groupsStr, 10) || 0;
+            const boxes = parseInt(boxesStr, 10) || 0;
+
             rows.push({
                 name: name,
-                props: props,
                 count: count,
+                groups: groups,
+                boxes: boxes,
                 done: false,
                 assignee: '',
             });
@@ -224,8 +238,13 @@
             // 搜索匹配
             if (searchTerm) {
                 const idxStr = String(index + 1);
+                const countStr = String(m.count);
+                const groupsStr = String(m.groups);
+                const boxesStr = String(m.boxes);
                 if (!m.name.toLowerCase().includes(searchTerm) &&
-                    !m.props.toLowerCase().includes(searchTerm) &&
+                    !countStr.includes(searchTerm) &&
+                    !groupsStr.includes(searchTerm) &&
+                    !boxesStr.includes(searchTerm) &&
                     !idxStr.includes(searchTerm) &&
                     !m.assignee.toLowerCase().includes(searchTerm)) {
                     return false;
@@ -278,8 +297,9 @@
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
                     <td class="col-name">${escapeHTML(m.name)}</td>
-                    <td class="col-props">${escapeHTML(m.props) || '—'}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
+                    <td class="col-groups">${m.groups.toLocaleString()}</td>
+                    <td class="col-boxes">${m.boxes.toLocaleString()}</td>
                     <td class="col-assign">
                         <div class="assigned-cell">
                             <span class="assigned-name"
@@ -401,42 +421,51 @@
         renderAll();
     });
 
-    // 导出 CSV
+    // 导出 XLSX
     btnExportCsv.addEventListener('click', () => {
         if (materials.length === 0) {
             showToast('没有可导出的数据');
             return;
         }
-        exportCSV();
+        exportXLSX();
     });
 
-    // ==================== CSV 导出 ====================
-    function exportCSV() {
-        let csv = '\uFEFF'; // BOM for Excel
-        csv += '序号,方块名称,属性,数量,已完成,分配人\n';
+    // ==================== XLSX 导出 ====================
+    function exportXLSX() {
+        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '已完成', '分配人'];
 
-        materials.forEach((m, index) => {
-            csv += `${index + 1},`;
-            csv += csvEscape(m.name) + ',';
-            csv += csvEscape(m.props) + ',';
-            csv += m.count + ',';
-            csv += (m.done ? '是' : '否') + ',';
-            csv += csvEscape(m.assignee);
-            csv += '\n';
-        });
+        const dataRows = materials.map((m, index) => [
+            index + 1,
+            m.name,
+            m.count,
+            m.groups,
+            m.boxes,
+            m.done ? '是' : '否',
+            m.assignee
+        ]);
 
         const totalDone = materials.filter((m) => m.done).length;
-        csv += `\n总计,${materials.length} 种材料,,,已完成 ${totalDone} 种\n`;
+        const summaryRow = ['总计', materials.length + ' 种材料', '', '', '', '已完成 ' + totalDone + ' 种', ''];
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = sourceFileName + '_分配表.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        const allRows = [headerRow, ...dataRows, summaryRow];
+
+        const ws = XLSX.utils.aoa_to_sheet(allRows);
+
+        // 设置列宽
+        ws['!cols'] = [
+            { wch: 8 },   // 序号
+            { wch: 30 },  // 方块名称
+            { wch: 10 },  // 总数
+            { wch: 8 },   // 组数
+            { wch: 8 },   // 盒数
+            { wch: 8 },   // 已完成
+            { wch: 12 }   // 分配人
+        ];
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, '材料分配表');
+
+        XLSX.writeFile(wb, sourceFileName + '_分配表.xlsx');
     }
 
     // ==================== 文件上传绑定 ====================
