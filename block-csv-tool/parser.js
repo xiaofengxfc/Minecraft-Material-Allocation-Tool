@@ -301,10 +301,23 @@
             const region = regions[regionName];
 
             const size = region.Size || { x: 0, y: 0, z: 0 };
-            const sx = size.x;
-            const sy = size.y;
-            const sz = size.z;
-            const totalBlocks = sx * sy * sz;
+            // 防护：NBT TAG_Int 是有符号 32 位，但尺寸值不应为负
+            // 若出现负值可能是 unsigned int 溢出，用 >>> 0 还原为无符号值
+            let sx = size.x;
+            let sy = size.y;
+            let sz = size.z;
+            console.log('原始 Size 值:', { sx, sy, sz });
+            if (sx < 0) { sx = sx >>> 0; console.warn('Size.x 为负值，已按无符号整数还原:', sx); }
+            if (sy < 0) { sy = sy >>> 0; console.warn('Size.y 为负值，已按无符号整数还原:', sy); }
+            if (sz < 0) { sz = sz >>> 0; console.warn('Size.z 为负值，已按无符号整数还原:', sz); }
+            // 使用 BigInt 进行乘法，避免中间溢出（虽然 JS Number 有 53 位精度，但保守起见）
+            const totalBlocks = Number(BigInt(Math.floor(sx)) * BigInt(Math.floor(sy)) * BigInt(Math.floor(sz)));
+            console.log('计算 totalBlocks:', sx, '×', sy, '×', sz, '=', totalBlocks);
+            // 二次验证
+            if (!Number.isInteger(totalBlocks) || totalBlocks <= 0 || totalBlocks >= 0x1FFFFFFFFFFFFF) {
+                console.error('totalBlocks 异常:', totalBlocks, '原始 Size:', size);
+                throw new Error('方块数量数据异常（' + totalBlocks + '），原始尺寸：' + sx + '×' + sy + '×' + sz + '，请检查文件是否损坏');
+            }
 
             // 获取调色板
             const palette = region.BlockStatePalette || [];
@@ -330,6 +343,7 @@
             showProgress(70, '正在解码方块数据...');
 
             // 解码方块
+            console.log('准备解码：totalBlocks=' + totalBlocks + ', paletteSize=' + paletteSize + ', blockStatesLongs.length=' + blockStatesLongs.length);
             const indices = decodeBlockIndices(blockStatesLongs, paletteSize, totalBlocks);
             showProgress(85, '正在统计方块...');
 
