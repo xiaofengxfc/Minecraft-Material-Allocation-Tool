@@ -442,6 +442,7 @@
             html += `
                 <tr>
                     <td class="col-idx">${index + 1}</td>
+                    <td class="col-en-name">${escapeHTML(name)}</td>
                     <td class="col-cn-name">${escapeHTML(chineseName)}</td>
                     <td class="col-count">${count.toLocaleString()}</td>
                     <td class="col-groups">${groups.toLocaleString()}</td>
@@ -454,6 +455,7 @@
         html += `
             <tr class="summary-row">
                 <td class="col-idx"></td>
+                <td class="col-en-name"></td>
                 <td class="col-cn-name">合计 ${rows.length} 种方块</td>
                 <td class="col-count">${total.toLocaleString()}</td>
                 <td class="col-groups">${totalGroups.toLocaleString()}</td>
@@ -484,7 +486,7 @@
 
         const info = currentData.info;
         let csv = '\uFEFF'; // BOM for Excel UTF-8
-        csv += '序号,中文名称,总数,组数,盒数\n';
+        csv += '序号,英文名称,中文名称,总数,组数,盒数\n';
 
         let totalGroups = 0;
         let totalBoxes = 0;
@@ -495,12 +497,13 @@
             totalGroups += groups;
             totalBoxes += boxes;
             const chineseName = translateBlockName(name);
+            const escapedEnName = csvEscape(name);
             const escapedCnName = csvEscape(chineseName);
-            csv += `${index + 1},${escapedCnName},${count},${groups},${boxes}\n`;
+            csv += `${index + 1},${escapedEnName},${escapedCnName},${count},${groups},${boxes}\n`;
         });
 
         // 合计行
-        csv += `,,合计 ${currentData.blocks.length} 种方块,${info.nonAirBlocks},${totalGroups},${totalBoxes}\n`;
+        csv += `,,,合计 ${currentData.blocks.length} 种方块,${info.nonAirBlocks},${totalGroups},${totalBoxes}\n`;
 
         // 元信息
         csv += '\n';
@@ -531,7 +534,7 @@
         const info = currentData.info;
 
         // 构建数据数组
-        const headerRow = ['序号', '中文名称', '总数', '组数', '盒数'];
+        const headerRow = ['序号', '英文名称', '中文名称', '总数', '组数', '盒数'];
 
         let totalGroups = 0;
         let totalBoxes = 0;
@@ -542,11 +545,11 @@
             totalGroups += groups;
             totalBoxes += boxes;
             const chineseName = translateBlockName(name);
-            return [index + 1, chineseName, count, groups, boxes];
+            return [index + 1, name, chineseName, count, groups, boxes];
         });
 
         // 合计行
-        const summaryRow = ['', '合计 ' + currentData.blocks.length + ' 种方块', info.nonAirBlocks, totalGroups, totalBoxes];
+        const summaryRow = ['', '', '合计 ' + currentData.blocks.length + ' 种方块', info.nonAirBlocks, totalGroups, totalBoxes];
 
         // 元信息（空白分隔行）
         const metaRows = [
@@ -565,6 +568,7 @@
         // 设置列宽
         ws['!cols'] = [
             { wch: 8 },   // 序号
+            { wch: 20 },  // 英文名称
             { wch: 22 },  // 中文名称
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
