@@ -302,14 +302,16 @@
 
             const size = region.Size || { x: 0, y: 0, z: 0 };
             // 防护：NBT TAG_Int 是有符号 32 位，但尺寸值不应为负
-            // 若出现负值可能是 unsigned int 溢出，用 >>> 0 还原为无符号值
+            // 若出现负值，可能是坐标/偏移量误存，取绝对值作为实际尺寸
             let sx = size.x;
             let sy = size.y;
             let sz = size.z;
             console.log('原始 Size 值:', { sx, sy, sz });
-            if (sx < 0) { sx = sx >>> 0; console.warn('Size.x 为负值，已按无符号整数还原:', sx); }
-            if (sy < 0) { sy = sy >>> 0; console.warn('Size.y 为负值，已按无符号整数还原:', sy); }
-            if (sz < 0) { sz = sz >>> 0; console.warn('Size.z 为负值，已按无符号整数还原:', sz); }
+            // NBT TAG_Int 为有符号 32 位整数，尺寸不应为负值
+            // 若出现负值，可能是坐标/偏移量误存，取绝对值作为实际尺寸
+            if (sx < 0) { sx = Math.abs(sx); console.warn('Size.x 为负值，已取绝对值还原:', sx); }
+            if (sy < 0) { sy = Math.abs(sy); console.warn('Size.y 为负值，已取绝对值还原:', sy); }
+            if (sz < 0) { sz = Math.abs(sz); console.warn('Size.z 为负值，已取绝对值还原:', sz); }
             // 使用 BigInt 进行乘法，避免中间溢出（虽然 JS Number 有 53 位精度，但保守起见）
             const totalBlocks = Number(BigInt(Math.floor(sx)) * BigInt(Math.floor(sy)) * BigInt(Math.floor(sz)));
             console.log('计算 totalBlocks:', sx, '×', sy, '×', sz, '=', totalBlocks);
