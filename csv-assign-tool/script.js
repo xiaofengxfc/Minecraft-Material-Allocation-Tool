@@ -6,7 +6,8 @@
  *   2. 材料状态标记（完成/未完成）
  *   3. 搜索与筛选
  *   4. 进度统计
- *   5. 导出含状态的 XLSX
+ *   5. 材料自动分组（按同类型材料归类为材料组）
+ *   6. 导出含状态的 XLSX
  */
 
 (function () {
@@ -33,11 +34,129 @@
     const emptyState       = document.getElementById('empty-state');
 
     // ==================== 状态 ====================
-    /** @type {Array<{name:string, chineseName:string, count:number, groups:number, boxes:number, done:boolean, assignee:string}>} */
+    /** @type {Array<{name:string, chineseName:string, count:number, groups:number, boxes:number, done:boolean, assignee:string, groupName:string, groupNumber:number}>} */
     let materials = [];
 
     /** 当前文件名（用于导出命名） */
     let sourceFileName = 'materials';
+
+    // ==================== 材料分组 ====================
+    /**
+     * Minecraft 材料常见的前缀（颜色、材质变种等），需要被剥离以提取基础类型
+     * 注意：顺序很重要，长前缀优先匹配
+     */
+    const MATERIAL_PREFIXES = [
+        // 颜色类（染色变种）
+        '淡灰色', '淡蓝色', '淡灰色', '黄绿色', '品红色',
+        '白色', '橙色', '品红', '淡蓝', '黄色', '黄绿',
+        '粉色', '灰色', '淡灰', '青色', '紫色', '蓝色',
+        '棕色', '绿色', '红色', '黑色',
+        // 木质变种
+        '去皮', '去皮深色', '去皮白桦', '去皮云杉', '去皮丛林',
+        '去皮金合欢', '去皮深板岩', '去皮绯红', '去皮诡异',
+        '深色橡木', '白桦木', '云杉木', '丛林木', '金合欢木',
+        '深板岩', '绯红', '诡异',
+        '橡木', '白桦', '云杉', '丛林', '金合欢', '深色',
+        // 石质变种
+        '錾制', '錾制深板岩', '磨制', '磨制黑石', '磨制深板岩',
+        '裂纹', '裂纹深板岩', '裂纹下界砖',
+        '苔石', '苔石砖',
+        '平滑', '平滑石头', '平滑砂岩', '平滑红砂岩', '平滑石英',
+        '錾制石砖', '錾制砂岩', '錾制红砂岩', '錾制下界砖',
+        '錾制石英',
+        // 其他常见前缀
+        '充能', '激活', '失活', '触发', '侦测',
+        '暗海晶', '海晶', '海晶石',
+        '紫珀', '末地',
+        '下界', '下界砖',
+        '红砖',
+        '沙石', '砂岩', '红沙', '红砂岩',
+        '粗铁', '粗金', '粗铜',
+        '铁', '金', '钻石', '下界合金',
+        '锁链', '灯笼',
+        '营火', '灵魂营火',
+        '高炉', '烟熏炉', '熔炉', '酿造台',
+        '阳光', '月光',
+        '黏性', '黏液',
+        '失明',
+        '深板岩',
+        '红石',
+        '发射', '投掷',
+    ];
+
+    /**
+     * 从中文材料名称中提取基础类型（剥离前缀）
+     * 例如："白色染色玻璃" → "染色玻璃"
+     *       "橡木木板" → "木板"
+     *       "石头" → "石头"（无匹配前缀时返回自身）
+     * @param {string} cnName
+     * @returns {string}
+     */
+    function extractBaseType(cnName) {
+        if (!cnName) return '';
+
+        // 按长度降序排列前缀，优先匹配更长的前缀
+        const sorted = [...MATERIAL_PREFIXES].sort((a, b) => b.length - a.length);
+
+        for (const prefix of sorted) {
+            if (cnName.startsWith(prefix)) {
+                const rest = cnName.slice(prefix.length);
+                // 只剥离完整的前缀词，避免误匹配
+                // 例如 "石头" 不应被 "石" 匹配而从 "头" 开始
+                if (rest.length >= 1) {
+                    return rest;
+                }
+            }
+        }
+
+        // 没有匹配到前缀，返回自身
+        return cnName;
+    }
+
+    /**
+     * 为材料数组分配分组
+     * 规则：
+     *   1. 提取每个材料的基础类型
+     *   2. 相同基础类型的材料归为同一材料组
+     *   3. 只有1种材料的组保持独立（不合并）
+     *   4. 组号从1开始
+     * @param {Array} mats
+     */
+    function assignGroups(mats) {
+        // 第一步：计算每个材料的基础类型
+        const baseTypeMap = new Map(); // chineseName → baseType
+        for (const m of mats) {
+            baseTypeMap.set(m.chineseName, extractBaseType(m.chineseName));
+        }
+
+        // 第二步：按基础类型分组
+        const groupMap = new Map(); // baseType → [材料索引数组]
+        for (let i = 0; i < mats.length; i++) {
+            const bt = baseTypeMap.get(mats[i].chineseName);
+            if (!groupMap.has(bt)) {
+                groupMap.set(bt, []);
+            }
+            groupMap.get(bt).push(i);
+        }
+
+        // 第三步：分配组号（从1开始），只有多材料组才编号
+        let groupNumber = 1;
+
+        for (const [baseType, indices] of groupMap) {
+            if (indices.length <= 1) {
+                // 单一材料，groupName 为空，groupNumber 为 0
+                mats[indices[0]].groupName = '';
+                mats[indices[0]].groupNumber = 0;
+            } else {
+                // 多材料组，分配组号
+                const gn = groupNumber++;
+                for (const idx of indices) {
+                    mats[idx].groupName = baseType;
+                    mats[idx].groupNumber = gn;
+                }
+            }
+        }
+    }
 
     // ==================== CSV 解析 ====================
     /**
@@ -256,6 +375,10 @@
 
             sourceFileName = file.name.replace(/\.csv$/i, '').replace(/_材料表$/, '');
             materials = parsed;
+
+            // 分配材料组
+            assignGroups(materials);
+
             showMainUI();
             renderAll();
         } catch (err) {
@@ -293,7 +416,9 @@
                 const groupsStr = String(m.groups);
                 const boxesStr = String(m.boxes);
                 const cnName = m.chineseName || '';
+                const groupStr = m.groupNumber > 0 ? '材料组' + m.groupNumber : '';
                 if (!cnName.toLowerCase().includes(searchTerm) &&
+                    !groupStr.toLowerCase().includes(searchTerm) &&
                     !countStr.includes(searchTerm) &&
                     !groupsStr.includes(searchTerm) &&
                     !boxesStr.includes(searchTerm) &&
@@ -333,11 +458,35 @@
         } else {
             emptyState.classList.add('hidden');
             let html = '';
-            filtered.forEach((m) => {
+
+            // 按材料组排序：同组材料排在一起
+            const sorted = [...filtered].sort((a, b) => {
+                if (a.groupNumber !== b.groupNumber) {
+                    if (a.groupNumber === 0) return 1;
+                    if (b.groupNumber === 0) return -1;
+                    return a.groupNumber - b.groupNumber;
+                }
+                return 0;
+            });
+
+            let lastGroup = -1;
+            sorted.forEach((m) => {
                 const originalIndex = materials.indexOf(m);
                 const doneClass = m.done ? 'completed' : '';
                 const statusClass = m.done ? 'done' : '';
                 const statusSymbol = m.done ? '&#10003;' : '';
+
+                // 材料组分隔行
+                if (m.groupNumber > 0 && m.groupNumber !== lastGroup) {
+                    lastGroup = m.groupNumber;
+                    html += `
+                    <tr class="group-separator">
+                        <td colspan="7">
+                            <span class="group-label">材料组 #${m.groupNumber}</span>
+                            <span class="group-name">${escapeHTML(m.groupName)}</span>
+                        </td>
+                    </tr>`;
+                }
 
                 html += `
                 <tr class="${doneClass}" data-index="${originalIndex}">
@@ -351,6 +500,7 @@
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>
+                    <td class="col-group-num">${m.groupNumber > 0 ? m.groupNumber : ''}</td>
                 </tr>`;
             });
             tableBody.innerHTML = html;
@@ -370,7 +520,12 @@
     function renderStats() {
         const total = materials.length;
         const done = materials.filter((m) => m.done).length;
-        statsSummary.innerHTML = `<strong>${done}</strong> / ${total} 已完成`;
+        const groupCount = new Set(
+            materials
+                .filter((m) => m.groupNumber > 0)
+                .map((m) => m.groupNumber)
+        ).size;
+        statsSummary.innerHTML = `<strong>${done}</strong> / ${total} 已完成 · <strong>${groupCount}</strong> 个材料组`;
     }
 
     function updateToggleButton() {
@@ -432,19 +587,35 @@
 
     // ==================== XLSX 导出 ====================
     function exportXLSX() {
-        const headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料收集者'];
+        const headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '材料收集者'];
 
-        const dataRows = materials.map((m, index) => [
+        // 按材料组排序后导出
+        const sorted = [...materials].sort((a, b) => {
+            if (a.groupNumber !== b.groupNumber) {
+                if (a.groupNumber === 0) return 1;
+                if (b.groupNumber === 0) return -1;
+                return a.groupNumber - b.groupNumber;
+            }
+            return 0;
+        });
+
+        const dataRows = sorted.map((m, index) => [
             index + 1,
             m.chineseName || '',
             m.count,
             m.groups,
             m.boxes,
+            m.groupNumber > 0 ? '材料组' + m.groupNumber : '',
             m.assignee
         ]);
 
         const totalDone = materials.filter((m) => m.done).length;
-        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种）', '', '', '', '', ''];
+        const groupCount = new Set(
+            materials
+                .filter((m) => m.groupNumber > 0)
+                .map((m) => m.groupNumber)
+        ).size;
+        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种，共 ' + groupCount + ' 个材料组）', '', '', '', '', ''];
 
         const allRows = [headerRow, ...dataRows, summaryRow];
 
@@ -457,7 +628,8 @@
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
             { wch: 8 },   // 盒数
-            { wch: 12 }   // 材料收集者
+            { wch: 12 },  // 材料组
+            { wch: 14 }   // 材料收集者
         ];
 
         const wb = XLSX.utils.book_new();
