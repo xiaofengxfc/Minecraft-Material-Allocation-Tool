@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Litematic → CSV 材料表转换器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Litematic 材料表转换器</h1>
+            <p class="subtitle">将 Minecraft 投影文件 (.litematic) 转换为 CSV 材料清单</p>
+        </header>
+
+        <section class="upload-section">
+            <label for="file-input" class="upload-area" id="upload-area">
+                <span class="upload-icon">&#128194;</span>
+                <span class="upload-text">点击选择或拖拽 .litematic 文件到此处</span>
+                <span class="upload-hint">支持所有版本的 Litematica 投影文件</span>
+                <input type="file" id="file-input" accept=".litematic" hidden>
+            </label>
+        </section>
+
+        <section class="info-section hidden" id="info-section">
+            <h2>文件信息</h2>
+            <div class="info-grid" id="info-grid"></div>
+        </section>
+
+        <section class="progress-section hidden" id="progress-section">
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <p class="progress-text" id="progress-text"></p>
+        </section>
+
+        <section class="preview-section hidden" id="preview-section">
+            <div class="section-header">
+                <h2>材料清单预览</h2>
+                <div class="section-actions">
+                    <button class="btn btn-primary" id="btn-export">导出 CSV</button>
+                    <button class="btn btn-secondary" id="btn-clear">清除</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="block-table" id="block-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>方块名称</th>
+                            <th>属性</th>
+                            <th>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2026 Litematic CSV Tool</p>
+        </footer>
+    </div>
+
+    <script src="parser.js"></script>
+</body>
+</html>
