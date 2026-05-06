@@ -432,7 +432,7 @@
 
     // ==================== XLSX 导出 ====================
     function exportXLSX() {
-        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '已完成', '分配人'];
+        const headerRow = ['序号', '方块名称', '总数', '组数', '盒数', '分配人'];
 
         const dataRows = materials.map((m, index) => [
             index + 1,
@@ -440,12 +440,11 @@
             m.count,
             m.groups,
             m.boxes,
-            m.done ? '是' : '否',
             m.assignee
         ]);
 
         const totalDone = materials.filter((m) => m.done).length;
-        const summaryRow = ['总计', materials.length + ' 种材料', '', '', '', '已完成 ' + totalDone + ' 种', ''];
+        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种）', '', '', '', ''];
 
         const allRows = [headerRow, ...dataRows, summaryRow];
 
@@ -458,7 +457,6 @@
             { wch: 10 },  // 总数
             { wch: 8 },   // 组数
             { wch: 8 },   // 盒数
-            { wch: 8 },   // 已完成
             { wch: 12 }   // 分配人
         ];
 
