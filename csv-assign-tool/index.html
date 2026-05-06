@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>材料分配表</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+
+        <!-- 头部 -->
+        <header class="header">
+            <h1>材料分配表</h1>
+            <p class="subtitle">导入 CSV 材料清单，跟踪收集与分配进度</p>
+        </header>
+
+        <!-- 上传区 -->
+        <section class="upload-section" id="upload-section">
+            <label for="file-input" class="upload-area" id="upload-area">
+                <span class="upload-icon">&#128196;</span>
+                <span class="upload-text">点击选择或拖拽 CSV 文件到此处</span>
+                <span class="upload-hint">编码需为 UTF-8，列顺序：序号,方块名称,属性,数量</span>
+                <input type="file" id="file-input" accept=".csv" hidden>
+            </label>
+        </section>
+
+        <!-- 工具栏 -->
+        <section class="toolbar hidden" id="toolbar">
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <span class="search-icon">&#128269;</span>
+                    <input type="text" id="search-input" placeholder="搜索材料名称...">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-chip">
+                        <input type="checkbox" id="filter-unassigned">
+                        <span>未分配</span>
+                    </label>
+                    <label class="filter-chip">
+                        <input type="checkbox" id="filter-assigned">
+                        <span>已分配</span>
+                    </label>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <span class="stats-summary" id="stats-summary"></span>
+                <button class="btn btn-outline" id="btn-reset-all">重置全部</button>
+                <button class="btn btn-outline" id="btn-export-csv">导出 CSV</button>
+                <button class="btn btn-primary" id="btn-toggle-all">全部标记完成</button>
+            </div>
+        </section>
+
+        <!-- 进度条 -->
+        <section class="progress-section hidden" id="progress-section">
+            <div class="progress-header">
+                <span class="progress-label">收集进度</span>
+                <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-detail" id="progress-detail"></div>
+        </section>
+
+        <!-- 表格 -->
+        <section class="table-section hidden" id="table-section">
+            <div class="table-wrapper">
+                <table class="material-table" id="material-table">
+                    <thead>
+                        <tr>
+                            <th class="col-status">状态</th>
+                            <th class="col-idx">#</th>
+                            <th class="col-name">方块名称</th>
+                            <th class="col-props">属性</th>
+                            <th class="col-count">数量</th>
+                            <th class="col-assign">分配人</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <div class="empty-state hidden" id="empty-state">
+                <p>没有匹配的材料</p>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>&copy; 2026 材料分配工具</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
