@@ -179,15 +179,18 @@
 
     /**
      * 合并按名称重复的材料条目
-     * 同名材料将 count/groups/boxes 求和，中文名称取第一个非空值
+     * 同名材料将 count 求和，然后重新计算 groups/boxes
      * 
      * 去重策略（解决致命重复bug）：
      *   - 英文名称大小写不敏感合并（如 White_Stained_Glass 与 white_stained_glass）
      *   - 中文名称相同也合并（兼容旧格式CSV只有中文名的场景）
      *   - 去除首尾空白后比较
+     *   - **关键修复**：合并后从 count 重新计算 groups/boxes，
+     *     而非简单求和（求和会导致组数/盒数虚高）
+     *     groups = ceil(count / 64), boxes = ceil(groups / 27)
      */
     function mergeDuplicateMaterials(rows) {
-        // 第一轮：按英文名称（小写归一化）合并
+        // 第一轮：按英文名称（小写归一化）合并 count
         const byEnglishName = new Map();
 
         for (const row of rows) {
@@ -198,8 +201,6 @@
             if (byEnglishName.has(key)) {
                 const existing = byEnglishName.get(key);
                 existing.count += row.count;
-                existing.groups += row.groups;
-                existing.boxes += row.boxes;
                 // 保留更规范的大小写形式（优先取首字母大写的）
                 if (/^[A-Z]/.test(row.name) && !/^[A-Z]/.test(existing.name)) {
                     existing.name = row.name;
@@ -212,8 +213,6 @@
                     name: nameTrimmed,
                     chineseName: (row.chineseName || '').trim(),
                     count: row.count,
-                    groups: row.groups,
-                    boxes: row.boxes,
                     done: row.done,
                     assignee: row.assignee,
                 });
@@ -222,16 +221,13 @@
 
         // 第二轮：按中文名称合并（处理旧格式CSV或只有中文名的条目）
         const cnSeen = new Map();
-        const result = [];
+        const merged = [];
 
         for (const [, item] of byEnglishName) {
             const cnKey = (item.chineseName || '').toLowerCase().trim();
             if (cnKey && cnSeen.has(cnKey)) {
                 const existing = cnSeen.get(cnKey);
                 existing.count += item.count;
-                existing.groups += item.groups;
-                existing.boxes += item.boxes;
-                // 如果有英文名称的合并到已有条目
                 if (!existing.name && item.name) {
                     existing.name = item.name;
                 }
@@ -239,11 +235,17 @@
                 if (cnKey) {
                     cnSeen.set(cnKey, item);
                 }
-                result.push(item);
+                merged.push(item);
             }
         }
 
-        return result;
+        // 从合并后的 count 重新计算 groups 和 boxes（避免求和导致的数字虚高）
+        for (const item of merged) {
+            item.groups = Math.ceil(item.count / 64);
+            item.boxes = Math.ceil(item.groups / 27);
+        }
+
+        return merged;
     }
 
     /**
@@ -393,6 +395,7 @@
                         </button>
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
+                    <td class="col-name">${escapeHTML(m.name)}</td>
                     <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
@@ -593,8 +596,13 @@
 
     // ==================== 初始化 ====================
     function init() {
-        // 始终先显示上传界面，只有导入CSV后才显示进度和材料列表
-        showUploadUI();
+        // 尝试恢复上次保存的数据
+        if (loadFromStorage()) {
+            showMainUI();
+            renderAll();
+        } else {
+            showUploadUI();
+        }
     }
 
     init();

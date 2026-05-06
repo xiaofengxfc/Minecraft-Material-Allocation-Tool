@@ -327,6 +327,9 @@
             showProgress(85, '正在统计方块...');
 
             // 统计方块（排除空气）
+            // 关键修复：按基础方块名称合并，忽略 block state 属性
+            // 例如 hopper(facing=west) 和 hopper(facing=east) 合并为同一个 hopper 条目
+            // 这样从材料收集角度避免了同种材料的多余重复条目
             const blockCounts = new Map();
             for (let i = 0; i < indices.length; i++) {
                 const idx = indices[i];
@@ -338,21 +341,16 @@
                 if (rawName === 'minecraft:air') continue;
 
                 const displayName = formatBlockName(rawName);
-                const props = formatProperties(entry.Properties);
-
-                // 用 name + props 作为唯一键
-                const key = displayName + '|' + props;
-                blockCounts.set(key, (blockCounts.get(key) || 0) + 1);
+                // 只用基础名称作为键（忽略属性），避免同种材料重复
+                blockCounts.set(displayName, (blockCounts.get(displayName) || 0) + 1);
             }
 
             showProgress(95, '正在渲染表格...');
 
             // 按数量降序排列
+            // key 现在是纯方块名称（不含 props），保持 [name, '', count] 三元组格式
             const sorted = Array.from(blockCounts.entries())
-                .map(([key, count]) => {
-                    const [name, props] = key.split('|');
-                    return [name, props, count];
-                })
+                .map(([name, count]) => [name, '', count])
                 .sort((a, b) => b[2] - a[2]);
 
             // 缓存数据
