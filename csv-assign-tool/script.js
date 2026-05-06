@@ -7,7 +7,6 @@
  *   3. 搜索与筛选
  *   4. 进度统计
  *   5. 导出含状态的 XLSX
- *   6. localStorage 持久化
  */
 
 (function () {
@@ -34,51 +33,11 @@
     const emptyState       = document.getElementById('empty-state');
 
     // ==================== 状态 ====================
-    const STORAGE_KEY = 'csv_assign_tool_data';
-
     /** @type {Array<{name:string, chineseName:string, count:number, groups:number, boxes:number, done:boolean, assignee:string}>} */
     let materials = [];
 
     /** 当前文件名（用于导出命名） */
     let sourceFileName = 'materials';
-
-    // ==================== 持久化 ====================
-    function saveToStorage() {
-        try {
-            const data = {
-                sourceFileName: sourceFileName,
-                materials: materials,
-            };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        } catch (e) {
-            // localStorage 满了或不可用，静默忽略
-        }
-    }
-
-    function loadFromStorage() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return false;
-            const data = JSON.parse(raw);
-            if (data && Array.isArray(data.materials) && data.materials.length > 0) {
-                sourceFileName = data.sourceFileName || 'materials';
-                materials = data.materials;
-                // 迁移旧数据：如果使用旧格式（有props字段），清除后重新导入
-                if (materials.length > 0 && 'props' in materials[0] && !('groups' in materials[0])) {
-                    clearStorage();
-                    return false;
-                }
-                return true;
-            }
-        } catch (e) {
-            // 数据损坏
-        }
-        return false;
-    }
-
-    function clearStorage() {
-        localStorage.removeItem(STORAGE_KEY);
-    }
 
     // ==================== CSV 解析 ====================
     /**
@@ -297,7 +256,6 @@
 
             sourceFileName = file.name.replace(/\.csv$/i, '').replace(/_材料表$/, '');
             materials = parsed;
-            saveToStorage();
             showMainUI();
             renderAll();
         } catch (err) {
@@ -429,7 +387,6 @@
         if (isNaN(index) || index < 0 || index >= materials.length) return;
 
         materials[index].done = !materials[index].done;
-        saveToStorage();
         renderAll();
     });
 
@@ -451,7 +408,6 @@
     btnToggleAll.addEventListener('click', () => {
         const allDone = materials.every((m) => m.done);
         materials.forEach((m) => { m.done = !allDone; });
-        saveToStorage();
         renderAll();
     });
 
@@ -462,7 +418,6 @@
             m.done = false;
             m.assignee = '';
         });
-        saveToStorage();
         renderAll();
     });
 
@@ -587,13 +542,7 @@
 
     // ==================== 初始化 ====================
     function init() {
-        // 尝试恢复上次保存的数据
-        if (loadFromStorage()) {
-            showMainUI();
-            renderAll();
-        } else {
-            showUploadUI();
-        }
+        showUploadUI();
     }
 
     init();
