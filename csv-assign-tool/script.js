@@ -173,7 +173,39 @@
             });
         }
 
-        return rows;
+        // 去重合并：同名材料合并 count/groups/boxes
+        return mergeDuplicateMaterials(rows);
+    }
+
+    /**
+     * 合并按名称重复的材料条目
+     * 同名材料将 count/groups/boxes 求和，中文名称取第一个非空值
+     */
+    function mergeDuplicateMaterials(rows) {
+        const merged = new Map();
+        for (const row of rows) {
+            const key = row.name;
+            if (merged.has(key)) {
+                const existing = merged.get(key);
+                existing.count += row.count;
+                existing.groups += row.groups;
+                existing.boxes += row.boxes;
+                if (!existing.chineseName && row.chineseName) {
+                    existing.chineseName = row.chineseName;
+                }
+            } else {
+                merged.set(key, {
+                    name: row.name,
+                    chineseName: row.chineseName,
+                    count: row.count,
+                    groups: row.groups,
+                    boxes: row.boxes,
+                    done: row.done,
+                    assignee: row.assignee,
+                });
+            }
+        }
+        return Array.from(merged.values());
     }
 
     /**
@@ -323,8 +355,7 @@
                         </button>
                     </td>
                     <td class="col-idx">${originalIndex + 1}</td>
-                    <td class="col-name">${escapeHTML(m.name)}</td>
-                    <td class="col-cn-name">${escapeHTML(m.chineseName || '')}</td>
+                    <td class="col-cn-name">${escapeHTML(m.chineseName || m.name)}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>

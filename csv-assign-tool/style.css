@@ -410,24 +410,17 @@ body {
     background: #e3ede4;
 }
 
-/* Column widths */
-.col-status { width: 52px; text-align: center; }
-.col-idx    { width: 44px; text-align: center; }
-.col-name    { width: auto; }
+/* Column widths (English name column removed) */
+.col-status  { width: 52px; text-align: center; }
+.col-idx     { width: 44px; text-align: center; }
 .col-cn-name { width: auto; }
-.col-count  { width: 80px; text-align: right; }
-.col-groups { width: 70px; text-align: right; }
-.col-boxes  { width: 70px; text-align: right; }
+.col-count   { width: 80px; text-align: right; }
+.col-groups  { width: 70px; text-align: right; }
+.col-boxes   { width: 70px; text-align: right; }
 
 /* Cells */
 .material-table .col-idx {
     color: var(--text-muted);
-}
-
-.material-table .col-name {
-    font-weight: 500;
-    color: var(--text);
-    word-break: break-word;
 }
 
 .material-table .col-cn-name {
@@ -448,8 +441,7 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-
-.completed .col-name {
+.completed .col-cn-name {
     text-decoration: line-through;
     color: var(--text-muted);
 }
