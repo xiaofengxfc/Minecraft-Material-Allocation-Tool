@@ -256,7 +256,7 @@
      * 规则：
      *   1. 提取每个材料的基础类型
      *   2. 相同基础类型的材料归为同一材料组
-     *   3. 只有1种材料的组保持独立（不合并）
+     *   3. 全部材料都编入材料组（包括单一材料）
      *   4. 组号从1开始
      * @param {Array} mats
      */
@@ -277,21 +277,15 @@
             groupMap.get(bt).push(i);
         }
 
-        // 第三步：分配组号（从1开始），只有多材料组才编号
+        // 第三步：分配组号（从1开始），所有材料都编入材料组
         let groupNumber = 1;
 
         for (const [baseType, indices] of groupMap) {
-            if (indices.length <= 1) {
-                // 单一材料，groupName 为空，groupNumber 为 0
-                mats[indices[0]].groupName = '';
-                mats[indices[0]].groupNumber = 0;
-            } else {
-                // 多材料组，分配组号
-                const gn = groupNumber++;
-                for (const idx of indices) {
-                    mats[idx].groupName = baseType;
-                    mats[idx].groupNumber = gn;
-                }
+            // 所有材料（包括单一材料）都分配组号
+            const gn = groupNumber++;
+            for (const idx of indices) {
+                mats[idx].groupName = baseType;
+                mats[idx].groupNumber = gn;
             }
         }
     }
@@ -549,12 +543,12 @@
         return materials.filter((m, index) => {
             // 搜索匹配
             if (searchTerm) {
-                const idxStr = String(index + 1);
+                const idxStr = String(m.groupNumber);
                 const countStr = String(m.count);
                 const groupsStr = String(m.groups);
                 const boxesStr = String(m.boxes);
                 const cnName = m.chineseName || '';
-                const groupStr = m.groupNumber > 0 ? '材料组' + m.groupNumber : '';
+                const groupStr = '材料组' + m.groupNumber;
                 if (!cnName.toLowerCase().includes(searchTerm) &&
                     !groupStr.toLowerCase().includes(searchTerm) &&
                     !countStr.includes(searchTerm) &&
@@ -599,12 +593,7 @@
 
             // 按材料组排序：同组材料排在一起
             const sorted = [...filtered].sort((a, b) => {
-                if (a.groupNumber !== b.groupNumber) {
-                    if (a.groupNumber === 0) return 1;
-                    if (b.groupNumber === 0) return -1;
-                    return a.groupNumber - b.groupNumber;
-                }
-                return 0;
+                return a.groupNumber - b.groupNumber;
             });
 
             let lastGroup = -1;
@@ -614,8 +603,8 @@
                 const statusClass = m.done ? 'done' : '';
                 const statusSymbol = m.done ? '&#10003;' : '';
 
-                // 材料组分隔行
-                if (m.groupNumber > 0 && m.groupNumber !== lastGroup) {
+                // 材料组分隔行（所有材料都有组号）
+                if (m.groupNumber !== lastGroup) {
                     lastGroup = m.groupNumber;
                     html += `
                     <tr class="group-separator">
@@ -633,12 +622,12 @@
                             ${statusSymbol}
                         </button>
                     </td>
-                    <td class="col-idx">${originalIndex + 1}</td>
+                    <td class="col-idx">${m.groupNumber}</td>
                     <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                     <td class="col-count">${m.count.toLocaleString()}</td>
                     <td class="col-groups">${m.groups.toLocaleString()}</td>
                     <td class="col-boxes">${m.boxes.toLocaleString()}</td>
-                    <td class="col-group-num">${m.groupNumber > 0 ? m.groupNumber : ''}</td>
+                    <td class="col-group-num">${m.groupNumber}</td>
                 </tr>`;
             });
             tableBody.innerHTML = html;
@@ -658,11 +647,7 @@
     function renderStats() {
         const total = materials.length;
         const done = materials.filter((m) => m.done).length;
-        const groupCount = new Set(
-            materials
-                .filter((m) => m.groupNumber > 0)
-                .map((m) => m.groupNumber)
-        ).size;
+        const groupCount = new Set(materials.map((m) => m.groupNumber)).size;
         statsSummary.innerHTML = `<strong>${done}</strong> / ${total} 已完成 · <strong>${groupCount}</strong> 个材料组`;
     }
 
@@ -729,33 +714,20 @@
 
         // 按材料组排序后导出
         const sorted = [...materials].sort((a, b) => {
-            if (a.groupNumber !== b.groupNumber) {
-                if (a.groupNumber === 0) return 1;
-                if (b.groupNumber === 0) return -1;
-                return a.groupNumber - b.groupNumber;
-            }
-            return 0;
+            return a.groupNumber - b.groupNumber;
         });
 
         const dataRows = sorted.map((m, index) => [
-            index + 1,
+            m.groupNumber,
             m.chineseName || '',
             m.count,
             m.groups,
             m.boxes,
-            m.groupNumber > 0 ? '材料组' + m.groupNumber : '',
+            '材料组' + m.groupNumber,
             m.assignee
         ]);
 
-        const totalDone = materials.filter((m) => m.done).length;
-        const groupCount = new Set(
-            materials
-                .filter((m) => m.groupNumber > 0)
-                .map((m) => m.groupNumber)
-        ).size;
-        const summaryRow = ['总计', materials.length + ' 种材料（已完成 ' + totalDone + ' 种，共 ' + groupCount + ' 个材料组）', '', '', '', '', ''];
-
-        const allRows = [headerRow, ...dataRows, summaryRow];
+        const allRows = [headerRow, ...dataRows];
 
         const ws = XLSX.utils.aoa_to_sheet(allRows);
 
