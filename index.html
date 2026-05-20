@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 材料表工具集</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <!-- ==================== 标签导航 ==================== -->
+    <nav class="tab-nav" id="tab-nav">
+        <button class="tab-btn active" data-tab="convert">投影转换</button>
+        <button class="tab-btn" data-tab="assign">材料分配</button>
+        <div class="tab-indicator" id="tab-indicator"></div>
+    </nav>
+
+    <!-- ==================== Tab 1: 投影转换 ==================== -->
+    <div class="tab-panel active" id="panel-convert">
+        <div class="container">
+            <header class="header">
+                <h1>Litematic 材料表转换器</h1>
+                <p class="subtitle">将 Minecraft 投影文件 (.litematic) 转换为材料清单</p>
+            </header>
+
+            <section class="upload-section">
+                <label for="file-input-litematic" class="upload-area" id="upload-area-litematic">
+                    <span class="upload-icon">&#128194;</span>
+                    <span class="upload-text">点击选择或拖拽 .litematic 文件到此处</span>
+                    <span class="upload-hint">支持所有版本的 Litematica 投影文件</span>
+                    <input type="file" id="file-input-litematic" accept=".litematic" hidden>
+                </label>
+            </section>
+
+            <section class="info-section hidden" id="info-section">
+                <h2>文件信息</h2>
+                <div class="info-grid" id="info-grid"></div>
+            </section>
+
+            <section class="progress-section hidden" id="convert-progress-section">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar" id="convert-progress-bar"></div>
+                </div>
+                <p class="progress-text" id="convert-progress-text"></p>
+            </section>
+
+            <section class="warning-section hidden" id="translation-warning">
+                <div class="warning-header">
+                    <span class="warning-icon">⚠️</span>
+                    <h2>翻译缺失警告</h2>
+                    <span class="warning-badge" id="warning-count">0</span>
+                </div>
+                <p class="warning-message">
+                    以下 <strong id="warning-count-text">0</strong> 个英文名称未找到对应的中文翻译：
+                </p>
+                <div class="warning-list" id="warning-list"></div>
+                <div class="warning-actions">
+                    <button class="btn btn-warning" id="btn-download-log">📥 下载翻译缺失日志</button>
+                </div>
+            </section>
+
+            <section class="preview-section hidden" id="preview-section">
+                <div class="section-header">
+                    <h2>材料清单预览</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="btn-export-csv">导出 CSV</button>
+                        <button class="btn btn-accent" id="btn-send-to-assign">📋 发送到材料分配</button>
+                        <button class="btn btn-secondary" id="btn-clear-convert">清除</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="block-table" id="block-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>英文名称</th>
+                                <th>中文名称</th>
+                                <th>总数</th>
+                                <th>组数</th>
+                                <th>盒数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="convert-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <p>&copy; 2026 材料表工具集</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ==================== Tab 2: 材料分配 ==================== -->
+    <div class="tab-panel" id="panel-assign">
+        <div class="container">
+            <header class="header">
+                <h1>材料分配表</h1>
+                <p class="subtitle">导入 CSV 或接收转换结果，跟踪收集与分配进度</p>
+            </header>
+
+            <section class="upload-section" id="assign-upload-section">
+                <label for="file-input-csv" class="upload-area" id="upload-area-csv">
+                    <span class="upload-icon">&#128196;</span>
+                    <span class="upload-text">点击选择或拖拽 CSV 文件到此处</span>
+                    <span class="upload-hint">编码需为 UTF-8，或从投影转换标签页直接发送数据</span>
+                    <input type="file" id="file-input-csv" accept=".csv" hidden>
+                </label>
+            </section>
+
+            <section class="toolbar hidden" id="assign-toolbar">
+                <div class="toolbar-left">
+                    <div class="search-box">
+                        <span class="search-icon">&#128269;</span>
+                        <input type="text" id="search-input" placeholder="搜索材料名称或组号...">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-chip">
+                            <input type="checkbox" id="filter-unassigned">
+                            <span>未分配</span>
+                        </label>
+                        <label class="filter-chip">
+                            <input type="checkbox" id="filter-assigned">
+                            <span>已分配</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <span class="stats-summary" id="stats-summary"></span>
+                    <button class="btn btn-outline" id="btn-reset-all">重置全部</button>
+                    <button class="btn btn-outline" id="btn-export-xlsx">导出 XLSX</button>
+                    <button class="btn btn-primary" id="btn-toggle-all">全部标记完成</button>
+                </div>
+            </section>
+
+            <section class="progress-section hidden" id="assign-progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">收集进度</span>
+                    <span class="progress-percent" id="progress-percent">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-detail" id="progress-detail"></div>
+            </section>
+
+            <section class="table-section hidden" id="assign-table-section">
+                <div class="table-wrapper">
+                    <table class="material-table" id="material-table">
+                        <thead>
+                            <tr>
+                                <th class="col-status">状态</th>
+                                <th class="col-idx">#</th>
+                                <th class="col-cn-name">中文名称</th>
+                                <th class="col-count">总数</th>
+                                <th class="col-groups">组数</th>
+                                <th class="col-boxes">盒数</th>
+                                <th class="col-group-num">材料组</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assign-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state hidden" id="assign-empty-state">
+                    <p>没有匹配的材料</p>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <p>&copy; 2026 材料表工具集</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ==================== Toast ==================== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="block-csv-tool/minecraft-translations.js"></script>
+    <script src="assets/script.js"></script>
+</body>
+</html>
