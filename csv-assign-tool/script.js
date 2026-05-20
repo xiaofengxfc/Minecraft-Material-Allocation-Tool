@@ -717,15 +717,24 @@
             return a.groupNumber - b.groupNumber;
         });
 
-        const dataRows = sorted.map((m, index) => [
-            m.groupNumber,
-            m.chineseName || '',
-            m.count,
-            m.groups,
-            m.boxes,
-            '材料组' + m.groupNumber,
-            m.assignee
-        ]);
+        const dataRows = [];
+        let lastGroup = -1;
+        sorted.forEach((m, index) => {
+            // 不同材料组之间插入空行
+            if (m.groupNumber !== lastGroup && lastGroup !== -1) {
+                dataRows.push(['', '', '', '', '', '', '']);
+            }
+            lastGroup = m.groupNumber;
+            dataRows.push([
+                m.groupNumber,
+                m.chineseName || '',
+                m.count,
+                m.groups,
+                m.boxes,
+                '材料组' + m.groupNumber,
+                m.assignee
+            ]);
+        });
 
         const allRows = [headerRow, ...dataRows];
 
