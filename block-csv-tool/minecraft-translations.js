@@ -633,6 +633,7 @@ const MINECRAFT_BLOCK_TRANSLATIONS = {
     'bamboo_wall_hanging_sign': '墙上的悬挂式竹告示牌',
 
     // ===== 功能性方块 =====
+    'tnt': 'TNT',
     'crafting_table': '工作台',
     'furnace': '熔炉',
     'blast_furnace': '高炉',
