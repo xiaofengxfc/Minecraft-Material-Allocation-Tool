@@ -534,11 +534,12 @@
     }
 
     // --- Convert 事件绑定 ---
-    convertUploadArea.addEventListener('click', () => convertFileInput.click());
+    // 注：不使用 JS click 打开文件选择器，HTML <label for="..."> 已处理手机端兼容性
     convertFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) handleConvertFile(file);
-        convertFileInput.value = '';
+        // 延迟清空，避免手机端 iOS Safari 因同步清空 value 而重新弹出文件选择器
+        setTimeout(() => { convertFileInput.value = ''; }, 200);
     });
     convertUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); convertUploadArea.classList.add('drag-over'); });
     convertUploadArea.addEventListener('dragleave', () => convertUploadArea.classList.remove('drag-over'));
@@ -1010,11 +1011,12 @@
     }
 
     // --- Assign 文件上传绑定 ---
-    assignUploadArea.addEventListener('click', () => assignFileInput.click());
+    // 注：不使用 JS click 打开文件选择器，HTML <label for="..."> 已处理手机端兼容性
     assignFileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) handleAssignFile(file);
-        assignFileInput.value = '';
+        // 延迟清空，避免手机端 iOS Safari 因同步清空 value 而重新弹出文件选择器
+        setTimeout(() => { assignFileInput.value = ''; }, 200);
     });
     assignUploadArea.addEventListener('dragover', (e) => { e.preventDefault(); assignUploadArea.classList.add('drag-over'); });
     assignUploadArea.addEventListener('dragleave', () => assignUploadArea.classList.remove('drag-over'));
