@@ -573,11 +573,6 @@ body {
         display: none;
     }
 
-    .col-groups,
-    .col-boxes {
-        display: none;
-    }
-
     /* Info grid — single column */
     .info-grid {
         grid-template-columns: 1fr;

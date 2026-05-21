@@ -605,10 +605,6 @@ body {
         font-size: 0.78rem;
     }
 
-    .col-groups,
-    .col-boxes {
-        display: none;
-    }
 }
 
 /* ----- Small screens (phones, ≤ 480px) ----- */
@@ -711,11 +707,6 @@ body {
     }
 
     .material-table .col-idx {
-        display: none;
-    }
-
-    .col-groups,
-    .col-boxes {
         display: none;
     }
 
