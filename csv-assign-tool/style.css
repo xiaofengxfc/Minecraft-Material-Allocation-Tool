@@ -542,9 +542,15 @@ body {
 }
 
 /* ----- Responsive ----- */
+/* ----- Medium screens (tablets, ≤ 700px) ----- */
 @media (max-width: 700px) {
     .container {
         padding: 24px 12px 40px;
+    }
+
+    .header {
+        margin-bottom: 24px;
+        padding-bottom: 18px;
     }
 
     .header h1 {
@@ -555,6 +561,10 @@ body {
         padding: 36px 16px;
     }
 
+    .upload-icon {
+        font-size: 2.2rem;
+    }
+
     .toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -563,10 +573,27 @@ body {
     .toolbar-left,
     .toolbar-right {
         justify-content: flex-start;
+        width: 100%;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 0;
     }
 
     .search-box input {
-        width: 160px;
+        width: 100%;
+        min-width: 140px;
+    }
+
+    /* Table — horizontal scroll */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .material-table {
+        min-width: 520px;
     }
 
     .material-table th,
@@ -578,5 +605,165 @@ body {
     .col-groups,
     .col-boxes {
         display: none;
+    }
+}
+
+/* ----- Small screens (phones, ≤ 480px) ----- */
+@media (max-width: 480px) {
+    .container {
+        padding: 16px 8px 32px;
+    }
+
+    .header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+
+    .header h1 {
+        font-size: 1.15rem;
+    }
+
+    .subtitle {
+        font-size: 0.78rem;
+    }
+
+    .upload-area {
+        padding: 28px 12px;
+        gap: 8px;
+    }
+
+    .upload-icon {
+        font-size: 1.8rem;
+    }
+
+    .upload-text {
+        font-size: 0.9rem;
+    }
+
+    .upload-hint {
+        font-size: 0.75rem;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .toolbar-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .toolbar-right {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .search-box input {
+        width: 100%;
+        font-size: 0.82rem;
+        padding: 8px 12px 8px 32px;
+    }
+
+    .filter-group {
+        flex-wrap: wrap;
+    }
+
+    .filter-chip {
+        font-size: 0.78rem;
+        padding: 5px 10px;
+    }
+
+    .stats-summary {
+        font-size: 0.75rem;
+        width: 100%;
+        text-align: left;
+        margin-right: 0;
+    }
+
+    /* Buttons — larger touch targets */
+    .btn {
+        padding: 9px 14px;
+        font-size: 0.8rem;
+        min-height: 36px;
+    }
+
+    /* Table */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 4px;
+    }
+
+    .material-table {
+        min-width: 420px;
+    }
+
+    .material-table th,
+    .material-table td {
+        padding: 7px 6px;
+        font-size: 0.75rem;
+    }
+
+    .material-table .col-idx {
+        display: none;
+    }
+
+    .col-groups,
+    .col-boxes {
+        display: none;
+    }
+
+    .col-count {
+        width: 60px;
+    }
+
+    .col-group-num {
+        width: 50px;
+    }
+
+    .col-status {
+        width: 40px;
+    }
+
+    /* Status button — touch-friendly */
+    .status-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Progress */
+    .progress-section {
+        padding: 12px 14px;
+    }
+
+    .progress-header {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .progress-label {
+        font-size: 0.8rem;
+    }
+
+    .progress-percent {
+        font-size: 0.85rem;
+    }
+
+    .progress-detail {
+        font-size: 0.75rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+        padding: 36px 16px;
+        font-size: 0.85rem;
+    }
+
+    /* Footer */
+    .footer p {
+        font-size: 0.74rem;
     }
 }

@@ -905,22 +905,36 @@ body {
 }
 
 /* ==================== Responsive ==================== */
+/* ----- Medium screens (tablets, ≤ 700px) ----- */
 @media (max-width: 700px) {
+    .tab-nav {
+        padding: 0 8px;
+    }
+
     .tab-btn {
-        padding: 12px 18px;
-        font-size: 0.85rem;
+        padding: 12px 16px;
+        font-size: 0.82rem;
     }
 
     .container {
         padding: 20px 12px 40px;
     }
 
+    .header {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+    }
+
     .header h1 {
-        font-size: 1.35rem;
+        font-size: 1.3rem;
     }
 
     .upload-area {
         padding: 36px 16px;
+    }
+
+    .upload-icon {
+        font-size: 2.2rem;
     }
 
     .toolbar {
@@ -931,16 +945,39 @@ body {
     .toolbar-left,
     .toolbar-right {
         justify-content: flex-start;
+        width: 100%;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 0;
     }
 
     .search-box input {
-        width: 160px;
+        width: 100%;
+        min-width: 140px;
     }
 
     .section-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+    }
+
+    .section-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    /* Tables — enable horizontal scroll */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .block-table,
+    .material-table {
+        min-width: 520px;
     }
 
     .block-table th,
@@ -958,5 +995,243 @@ body {
     .col-groups,
     .col-boxes {
         display: none;
+    }
+
+    /* Info grid — fewer columns */
+    .info-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    /* Progress section */
+    .assign-progress-wrap {
+        padding: 14px 16px;
+    }
+}
+
+/* ----- Small screens (phones, ≤ 480px) ----- */
+@media (max-width: 480px) {
+    /* Tab navigation */
+    .tab-nav {
+        padding: 0 4px;
+        gap: 0;
+    }
+
+    .tab-btn {
+        flex: 1;
+        padding: 12px 8px;
+        font-size: 0.78rem;
+        letter-spacing: 0;
+    }
+
+    /* Container */
+    .container {
+        padding: 16px 8px 32px;
+    }
+
+    /* Header */
+    .header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+
+    .header h1 {
+        font-size: 1.15rem;
+    }
+
+    .subtitle {
+        font-size: 0.78rem;
+    }
+
+    /* Upload */
+    .upload-area {
+        padding: 28px 12px;
+        gap: 8px;
+    }
+
+    .upload-icon {
+        font-size: 2rem;
+    }
+
+    .upload-text {
+        font-size: 0.9rem;
+    }
+
+    .upload-hint {
+        font-size: 0.75rem;
+    }
+
+    /* Toolbar */
+    .toolbar {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .toolbar-left {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .toolbar-right {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .search-box input {
+        width: 100%;
+        font-size: 0.82rem;
+        padding: 8px 12px 8px 32px;
+    }
+
+    .filter-group {
+        flex-wrap: wrap;
+    }
+
+    .filter-chip {
+        font-size: 0.78rem;
+        padding: 5px 10px;
+    }
+
+    .stats-summary {
+        font-size: 0.75rem;
+        width: 100%;
+        text-align: left;
+        margin-right: 0;
+    }
+
+    /* Buttons — larger touch targets */
+    .btn {
+        padding: 9px 14px;
+        font-size: 0.8rem;
+        min-height: 36px;
+    }
+
+    .section-actions .btn {
+        flex: 1 1 auto;
+    }
+
+    /* Section header */
+    .section-header h2 {
+        font-size: 0.95rem;
+    }
+
+    /* Tables */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-sm);
+    }
+
+    .block-table,
+    .material-table {
+        min-width: 480px;
+    }
+
+    .block-table th,
+    .block-table td {
+        padding: 7px 8px;
+        font-size: 0.76rem;
+    }
+
+    .block-table .col-en-name {
+        display: none;
+    }
+
+    .material-table th,
+    .material-table td {
+        padding: 7px 6px;
+        font-size: 0.75rem;
+    }
+
+    /* Hide less-critical columns */
+    .material-table .col-idx {
+        display: none;
+    }
+
+    .col-groups,
+    .col-boxes {
+        display: none;
+    }
+
+    .col-count {
+        width: 60px;
+    }
+
+    .col-group-num {
+        width: 50px;
+    }
+
+    .col-status {
+        width: 40px;
+    }
+
+    /* Status button — touch-friendly */
+    .status-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Info grid — single column */
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .info-item {
+        font-size: 0.82rem;
+        padding: 7px 10px;
+    }
+
+    /* Progress */
+    .assign-progress-wrap {
+        padding: 12px 14px;
+    }
+
+    .progress-header {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .progress-label {
+        font-size: 0.8rem;
+    }
+
+    .progress-percent {
+        font-size: 0.85rem;
+    }
+
+    .progress-detail {
+        font-size: 0.75rem;
+    }
+
+    /* Warning */
+    .warning-section {
+        padding: 14px;
+    }
+
+    .warning-header h2 {
+        font-size: 0.95rem;
+    }
+
+    .warning-list {
+        max-height: 100px;
+        font-size: 0.78rem;
+    }
+
+    /* Toast */
+    .toast-message {
+        max-width: calc(100vw - 32px);
+        font-size: 0.82rem;
+        padding: 10px 18px;
+        text-align: center;
+    }
+
+    /* Footer */
+    .footer p {
+        font-size: 0.74rem;
+    }
+
+    /* Info section */
+    .info-section h2 {
+        font-size: 0.95rem;
     }
 }
