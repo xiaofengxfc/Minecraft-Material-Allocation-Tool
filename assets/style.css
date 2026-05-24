@@ -991,7 +991,6 @@ body {
     .table-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        -webkit-transform: translateZ(0); /* promote to GPU layer for smooth scroll */
     }
 
     .block-table,
@@ -1135,12 +1134,11 @@ body {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         border-radius: var(--radius-sm);
-        -webkit-transform: translateZ(0); /* promote to GPU layer for smooth scroll */
     }
 
     .block-table,
     .material-table {
-        min-width: 100%;
+        min-width: 520px;
         table-layout: auto;
     }
 
