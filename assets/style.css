@@ -93,6 +93,10 @@ body {
     transition: color var(--transition), border-color var(--transition);
     letter-spacing: 0.03em;
     white-space: nowrap;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 48px;
+    user-select: none;
 }
 
 .tab-btn:hover {
@@ -110,6 +114,10 @@ body {
 
 .tab-panel.active {
     display: block;
+}
+
+.tab-indicator {
+    display: none;
 }
 
 /* ==================== Container ==================== */
