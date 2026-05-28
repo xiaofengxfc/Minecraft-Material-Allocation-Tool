@@ -152,6 +152,44 @@ body {
 /* ==================== Upload Section ==================== */
 .upload-section {
     margin-bottom: 24px;
+    transition: all 300ms ease;
+}
+
+/* 有结果后上传区域折叠为紧凑条 */
+.has-results .upload-section {
+    margin-bottom: 12px;
+}
+
+.has-results .upload-area {
+    padding: 10px 16px;
+    gap: 0;
+    flex-direction: row;
+    border-style: solid;
+    border-color: var(--border-light);
+    background: var(--surface-alt);
+    cursor: default;
+}
+
+.has-results .upload-icon {
+    font-size: 1.1rem;
+    margin-right: 8px;
+}
+
+.has-results .upload-text {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.has-results .upload-hint {
+    display: none;
+}
+
+/* 有结果时点击仍可重新选择文件 */
+.has-results .upload-area:hover {
+    border-color: var(--border);
+    background: var(--surface-alt);
+    box-shadow: none;
 }
 
 .upload-area {
@@ -544,7 +582,8 @@ body {
 .table-wrapper {
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
     background: var(--surface);
     box-shadow: var(--shadow-sm);
 }
@@ -988,11 +1027,6 @@ body {
         flex-wrap: wrap;
     }
 
-    /* Tables — enable horizontal scroll */
-    .table-wrapper {
-        overflow-x: auto;
-    }
-
     .block-table,
     .material-table {
         min-width: 520px;
@@ -1074,6 +1108,19 @@ body {
         font-size: 0.75rem;
     }
 
+    /* 有结果时上传区域进一步折叠 */
+    .has-results .upload-area {
+        padding: 8px 12px;
+    }
+
+    .has-results .upload-icon {
+        font-size: 1.1rem;
+    }
+
+    .has-results .upload-text {
+        font-size: 0.75rem;
+    }
+
     /* Toolbar */
     .toolbar {
         padding: 10px 12px;
@@ -1137,13 +1184,12 @@ body {
 
     /* Tables */
     .table-wrapper {
-        overflow-x: auto;
         border-radius: var(--radius-sm);
     }
 
     .block-table,
     .material-table {
-        min-width: 380px;
+        min-width: auto;
         table-layout: auto;
     }
 
@@ -1154,6 +1200,12 @@ body {
     }
 
     .block-table .col-en-name {
+        display: none;
+    }
+
+    /* block-table 手机上隐藏组数和盒数，只保留序号/名称/总数 */
+    .block-table .col-groups,
+    .block-table .col-boxes {
         display: none;
     }
 

@@ -157,6 +157,7 @@
     // ==================================================================
 
     // --- DOM 引用 (Convert) ---
+    const convertContainer = document.querySelector('#panel-convert .container');
     const convertUploadArea = document.getElementById('upload-area-litematic');
     const convertFileInput = document.getElementById('file-input-litematic');
     const infoSection = document.getElementById('info-section');
@@ -406,6 +407,10 @@
             setTimeout(() => {
                 convertProgressSection.classList.add('hidden');
                 previewSection.classList.remove('hidden');
+                // 标记有结果，折叠上传区
+                if (convertContainer) convertContainer.classList.add('has-results');
+                // 自动滚动到预览区域（尤其手机端确保用户能看到结果）
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 400);
         } catch (err) {
             convertProgressSection.classList.add('hidden');
@@ -427,6 +432,8 @@
         infoSection.classList.add('hidden');
         currentConvertData = null;
         hideTranslationWarning();
+        // 恢复上传区
+        if (convertContainer) convertContainer.classList.remove('has-results');
     }
 
     function showFileInfo(info) {
@@ -592,6 +599,8 @@
         previewSection.classList.add('hidden');
         convertProgressSection.classList.add('hidden');
         hideTranslationWarning();
+        // 恢复上传区
+        if (convertContainer) convertContainer.classList.remove('has-results');
     }
 
     // --- Convert 事件绑定 ---
