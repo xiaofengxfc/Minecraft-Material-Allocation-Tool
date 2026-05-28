@@ -50,7 +50,6 @@
 
 html {
     font-size: 15px;
-    overflow-x: hidden;
 }
 
 body {
@@ -60,9 +59,8 @@ body {
     color: var(--text);
     line-height: 1.55;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
-    overscroll-behavior-y: none;
 }
 
 /* ==================== Tab Navigation ==================== */
