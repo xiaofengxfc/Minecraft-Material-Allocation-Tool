@@ -1050,13 +1050,22 @@
     });
 
     function exportXLSX() {
-        const headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '材料收集者'];
-        const sorted = [...materials].sort((a, b) => a.groupNumber - b.groupNumber);
-        const dataRows = [];
-        let lastGroup = -1;
-        sorted.forEach((m) => {
+        if (!materials.length) {
+            showToast('没有可导出的数据');
+            return;
+        }
+
+        var headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '状态', '材料收集者'];
+        var sorted = materials.slice().sort(function (a, b) { return a.groupNumber - b.groupNumber; });
+        var dataRows = [];
+        var lastGroup = -1;
+        var merges = [];
+
+        sorted.forEach(function (m) {
+            // 分组分隔行（合并整行）
             if (m.groupNumber !== lastGroup && lastGroup !== -1) {
-                dataRows.push(['', '', '', '', '', '', '']);
+                dataRows.push(['——  材料组 ' + lastGroup + '  ——', '', '', '', '', '', '', '']);
+                merges.push({ s: { r: dataRows.length, c: 0 }, e: { r: dataRows.length, c: 7 } });
             }
             lastGroup = m.groupNumber;
             dataRows.push([
@@ -1066,16 +1075,60 @@
                 m.groups,
                 m.boxes,
                 '材料组' + m.groupNumber,
-                m.assignee,
+                m.done ? '✓ 已完成' : '○ 未完成',
+                m.assignee || '',
             ]);
         });
-        const allRows = [headerRow, ...dataRows];
-        const ws = XLSX.utils.aoa_to_sheet(allRows);
+
+        // 汇总行
+        if (sorted.length > 0) {
+            var totalCount = sorted.reduce(function (s, m) { return s + m.count; }, 0);
+            var totalGroups = sorted.reduce(function (s, m) { return s + m.groups; }, 0);
+            var totalBoxes = sorted.reduce(function (s, m) { return s + m.boxes; }, 0);
+            var doneCount = sorted.filter(function (m) { return m.done; }).length;
+            var groupCount = new Set(sorted.map(function (m) { return m.groupNumber; })).size;
+
+            // 空行 + 汇总行
+            dataRows.push(['', '', '', '', '', '', '', '']);
+            dataRows.push([
+                '', '合计 ' + sorted.length + ' 种材料',
+                totalCount, totalGroups, totalBoxes,
+                groupCount + ' 个材料组',
+                '已完成 ' + doneCount + ' / ' + sorted.length,
+                '',
+            ]);
+        }
+
+        // 构建完整行数组
+        var allRows = [headerRow].concat(dataRows);
+        var ws = XLSX.utils.aoa_to_sheet(allRows);
+
+        // 列宽
         ws['!cols'] = [
-            { wch: 8 }, { wch: 22 }, { wch: 10 }, { wch: 8 },
-            { wch: 8 }, { wch: 12 }, { wch: 14 },
+            { wch: 7 }, { wch: 26 }, { wch: 10 }, { wch: 8 },
+            { wch: 8 }, { wch: 13 }, { wch: 14 }, { wch: 14 },
         ];
-        const wb = XLSX.utils.book_new();
+
+        // 合并分组分隔行（注意: row 0 = header, dataRows 从 row 1 开始）
+        if (merges.length > 0) {
+            ws['!merges'] = [];
+            merges.forEach(function (m) {
+                ws['!merges'].push({ s: { r: m.s.r, c: m.s.c }, e: { r: m.e.r, c: m.e.c } });
+            });
+        }
+
+        // 数字格式：总数/组数/盒数列使用千位分隔
+        var range = XLSX.utils.decode_range(ws['!ref']);
+        for (var R = range.s.r; R <= range.e.r; R++) {
+            for (var C = 2; C <= 4; C++) {
+                var addr = XLSX.utils.encode_cell({ r: R, c: C });
+                if (ws[addr] && typeof ws[addr].v === 'number') {
+                    ws[addr].z = '#,##0';
+                }
+            }
+        }
+
+        var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, '材料分配表');
         XLSX.writeFile(wb, sourceFileName + '_分配表.xlsx');
     }
