@@ -62,6 +62,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     max-width: 100vw;
+    overscroll-behavior-y: none;
 }
 
 /* ==================== Tab Navigation ==================== */
@@ -990,7 +991,6 @@ body {
     /* Tables — enable horizontal scroll */
     .table-wrapper {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .block-table,
@@ -1098,12 +1098,15 @@ body {
     }
 
     .filter-group {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 4px;
     }
 
     .filter-chip {
         font-size: 0.78rem;
         padding: 5px 10px;
+        flex-shrink: 0;
     }
 
     .stats-summary {
@@ -1111,6 +1114,9 @@ body {
         width: 100%;
         text-align: left;
         margin-right: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     /* Buttons — larger touch targets */
@@ -1132,13 +1138,12 @@ body {
     /* Tables */
     .table-wrapper {
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
         border-radius: var(--radius-sm);
     }
 
     .block-table,
     .material-table {
-        min-width: 520px;
+        min-width: 380px;
         table-layout: auto;
     }
 
@@ -1159,7 +1164,9 @@ body {
     }
 
     /* Hide less-critical columns */
-    .material-table .col-idx {
+    .material-table .col-idx,
+    .material-table .col-groups,
+    .material-table .col-boxes {
         display: none;
     }
 
@@ -1245,3 +1252,206 @@ body {
         font-size: 0.95rem;
     }
 }
+
+/* ----- Ultra-small screens (≤ 360px, e.g. iPhone SE) ----- */
+@media (max-width: 360px) {
+    .container {
+        padding: 10px 6px 24px;
+    }
+
+    .tab-btn {
+        padding: 10px 6px;
+        font-size: 0.72rem;
+    }
+
+    .upload-area {
+        padding: 20px 10px;
+        gap: 6px;
+    }
+
+    .upload-icon {
+        font-size: 1.6rem;
+    }
+
+    .upload-text {
+        font-size: 0.82rem;
+    }
+
+    .upload-hint {
+        font-size: 0.7rem;
+    }
+
+    .btn {
+        padding: 8px 10px;
+        font-size: 0.76rem;
+        min-height: 34px;
+    }
+
+    .block-table,
+    .material-table {
+        min-width: 320px;
+    }
+
+    .block-table th,
+    .block-table td {
+        padding: 6px 6px;
+        font-size: 0.72rem;
+    }
+
+    .material-table th,
+    .material-table td {
+        padding: 6px 4px;
+        font-size: 0.7rem;
+    }
+
+    .material-table .col-group-num {
+        display: none;
+    }
+
+    .toolbar {
+        padding: 8px 10px;
+        gap: 6px;
+    }
+
+    .section-header h2 {
+        font-size: 0.88rem;
+    }
+}
+
+/* ==================== Accessibility — Reduced Motion ==================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .toast-message {
+        animation: none;
+    }
+}
+
+/* ==================== Dark Mode ==================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #1a1a18;
+        --surface: #242422;
+        --surface-alt: #2a2a28;
+        --border: #3d3d38;
+        --border-light: #33332e;
+        --text: #e4e2dc;
+        --text-secondary: #b5b2aa;
+        --text-muted: #7d7a72;
+
+        --accent: #6b9a60;
+        --accent-hover: #7db572;
+        --accent-light: #2a3326;
+        --accent-dim: #4a6842;
+        --accent-bg: #222820;
+
+        --warm: #b89870;
+        --warm-mid: #8a7860;
+        --warm-light: #2e2820;
+
+        --danger: #c07070;
+        --danger-hover: #d08080;
+        --danger-light: #302020;
+
+        --warning-bg: #2e2818;
+        --warning-border: #7a6a20;
+        --warning-text: #d4b840;
+
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+        --shadow: 0 1px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+        --shadow-lg: 0 4px 14px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .block-table thead {
+        background: #2a2a26;
+    }
+
+    .block-table tbody tr:nth-child(even) {
+        background: #282824;
+    }
+
+    .block-table tbody tr:hover {
+        background: #2e3228;
+    }
+
+    .block-table td {
+        border-bottom-color: #33332e;
+    }
+
+    .summary-row {
+        background: #2a2a26 !important;
+    }
+
+    .material-table thead {
+        background: #2a2a26;
+    }
+
+    .material-table tbody tr:nth-child(even) {
+        background: #282824;
+    }
+
+    .material-table tbody tr:hover {
+        background: #2e3028;
+    }
+
+    .material-table td {
+        border-bottom-color: #33332e;
+    }
+
+    .material-table tbody tr.completed {
+        background: #222820;
+    }
+
+    .material-table tbody tr.completed:hover {
+        background: #263024;
+    }
+
+    .material-table tbody tr.group-separator {
+        background: #2e2820;
+    }
+
+    .upload-area:hover {
+        background: #2a2a26;
+    }
+
+    .search-box input {
+        background: #2a2a28;
+        color: var(--text);
+    }
+
+    .btn-secondary {
+        background: #2a2a28;
+    }
+
+    .btn-outline {
+        background: #2a2a28;
+    }
+
+    .filter-chip {
+        background: #2a2a28;
+    }
+}
+
+/* ==================== Safe Area (Notched iPhones) ==================== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .tab-nav {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    .container {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+
+    .toast-container {
+        bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+}
+
+

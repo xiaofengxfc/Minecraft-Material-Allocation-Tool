@@ -27,6 +27,67 @@
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
 
+    // --- 触摸滑动切换标签页 (移动端手势) ---
+    (function initSwipeGesture() {
+        const tabNames = Array.from(tabButtons).map(b => b.dataset.tab);
+        let startX = 0;
+        let startY = 0;
+        let tracking = false;
+
+        document.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) { tracking = false; return; }
+            // 不拦截可滚动区域内的滑动（表格横向滚动、过滤标签滚动等）
+            if (e.target.closest('.table-wrapper, .filter-group, [style*="overflow"]')) {
+                tracking = false;
+                return;
+            }
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            tracking = true;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!tracking) return;
+            const deltaY = Math.abs(e.touches[0].clientY - startY);
+            const deltaX = Math.abs(e.touches[0].clientX - startX);
+            // 一旦发现是垂直滚动就放弃本次手势
+            if (deltaY > deltaX && deltaY > 10) {
+                tracking = false;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (!tracking) return;
+            tracking = false;
+
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const deltaX = endX - startX;
+            const deltaY = endY - startY;
+
+            // 忽略垂直滑动（滚动页面）和过小的水平滑动
+            if (Math.abs(deltaY) > Math.abs(deltaX) || Math.abs(deltaX) < 60) return;
+
+            const currentTab = document.querySelector('.tab-btn.active');
+            if (!currentTab) return;
+            const currentIdx = tabNames.indexOf(currentTab.dataset.tab);
+            if (currentIdx === -1) return;
+
+            let targetIdx;
+            if (deltaX < 0) {
+                // 左滑 → 下一个标签
+                targetIdx = Math.min(currentIdx + 1, tabNames.length - 1);
+            } else {
+                // 右滑 → 上一个标签
+                targetIdx = Math.max(currentIdx - 1, 0);
+            }
+
+            if (targetIdx !== currentIdx) {
+                switchTab(tabNames[targetIdx]);
+            }
+        }, { passive: true });
+    })();
+
     // ==================== Toast ====================
     function showToast(message) {
         const container = document.getElementById('toast-container');
