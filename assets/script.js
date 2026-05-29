@@ -933,17 +933,31 @@
         assignEmptyState.classList.add('hidden');
 
         let html = '';
-        const sorted = [...filtered].sort((a, b) => a.groupNumber - b.groupNumber);
+        // 二级分组排序：先按组号 → 组内按中文名称拼音排序
+        const sorted = [...filtered].sort((a, b) => {
+            if (a.groupNumber !== b.groupNumber) return a.groupNumber - b.groupNumber;
+            const nameA = a.chineseName || '';
+            const nameB = b.chineseName || '';
+            return nameA.localeCompare(nameB, 'zh-CN');
+        });
         let lastGroup = -1;
+
+        // 预计算每组材料数量
+        const groupCounts = {};
+        sorted.forEach(m => {
+            groupCounts[m.groupNumber] = (groupCounts[m.groupNumber] || 0) + 1;
+        });
 
         sorted.forEach((m) => {
             if (m.groupNumber !== lastGroup) {
                 lastGroup = m.groupNumber;
+                const groupSize = groupCounts[m.groupNumber] || 0;
                 html += `
                 <tr class="group-separator">
                     <td colspan="6">
                         <span class="group-label">材料组 #${m.groupNumber}</span>
                         <span class="group-name">${escapeHTML(m.groupName)}</span>
+                        <span class="group-count">${groupSize} 种</span>
                     </td>
                 </tr>`;
             }
@@ -989,7 +1003,13 @@
         }
 
         var headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '材料收集者'];
-        var sorted = materials.slice().sort(function (a, b) { return a.groupNumber - b.groupNumber; });
+        // 二级分组排序：先按组号 → 组内按中文名称拼音排序
+        var sorted = materials.slice().sort(function (a, b) {
+            if (a.groupNumber !== b.groupNumber) return a.groupNumber - b.groupNumber;
+            var nameA = a.chineseName || '';
+            var nameB = b.chineseName || '';
+            return nameA.localeCompare(nameB, 'zh-CN');
+        });
         var dataRows = [];
         var lastGroup = -1;
         var merges = [];

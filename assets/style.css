@@ -817,6 +817,19 @@ body {
     line-height: 1.4;
 }
 
+.group-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-light);
+    border-radius: 12px;
+    line-height: 1.4;
+    margin-left: 4px;
+}
+
 /* Column widths - Material Table */
 .material-table .col-idx        { width: 44px; text-align: center; }
 .material-table .col-cn-name    { width: auto; }
@@ -1475,6 +1488,11 @@ body {
         background: rgba(36,42,50,0.55);
         border-color: rgba(160,180,200,0.15);
         color: var(--text-secondary);
+    }
+
+    .group-count {
+        background: rgba(116,168,200,0.16);
+        color: #8cc0dc;
     }
 
     .summary-row {
