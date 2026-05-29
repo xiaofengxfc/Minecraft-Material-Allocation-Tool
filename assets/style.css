@@ -921,7 +921,6 @@ body {
 }
 
 /* Column widths - Material Table */
-.col-status    { width: 52px; text-align: center; }
 .material-table .col-idx        { width: 44px; text-align: center; }
 .material-table .col-cn-name    { width: auto; }
 .material-table .col-count      { width: 80px; text-align: right; }
@@ -964,44 +963,6 @@ body {
 
 .completed .col-count {
     color: var(--accent);
-}
-
-/* Status checkbox button */
-.status-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--border-soft);
-    border-radius: 50%;
-    background: rgba(255,255,255,0.6);
-    cursor: pointer;
-    transition: all var(--transition);
-    color: transparent;
-    font-size: 0.8rem;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-
-.status-btn:hover {
-    border-color: var(--accent);
-    background: rgba(255,255,255,0.9);
-    transform: scale(1.1);
-    box-shadow: 0 0 0 4px var(--accent-glow);
-}
-
-.status-btn.done {
-    border-color: var(--accent);
-    background: var(--accent);
-    color: #fff;
-    box-shadow: 0 0 0 5px var(--accent-glow);
-}
-
-.status-btn.done:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-    transform: scale(1.1);
 }
 
 /* Empty state */
@@ -1422,15 +1383,6 @@ body {
         width: 50px;
     }
 
-    .col-status {
-        width: 42px;
-    }
-
-    .status-btn {
-        width: 32px;
-        height: 32px;
-    }
-
     .info-grid {
         grid-template-columns: 1fr;
     }
@@ -1721,14 +1673,6 @@ body {
 
     .info-item:hover {
         background: rgba(255,255,255,0.08);
-    }
-
-    .status-btn {
-        background: rgba(20,26,34,0.40);
-    }
-
-    .status-btn:hover {
-        background: rgba(20,26,34,0.70);
     }
 
     .warning-badge {

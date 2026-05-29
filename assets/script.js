@@ -968,7 +968,7 @@
                 lastGroup = m.groupNumber;
                 html += `
                 <tr class="group-separator">
-                    <td colspan="7">
+                    <td colspan="6">
                         <span class="group-label">材料组 #${m.groupNumber}</span>
                         <span class="group-name">${escapeHTML(m.groupName)}</span>
                     </td>
@@ -977,9 +977,6 @@
 
             html += `
             <tr class="${doneClass}" data-index="${originalIndex}">
-                <td class="col-status">
-                    <button class="status-btn ${statusClass}" data-action="toggle" data-index="${originalIndex}">${statusSymbol}</button>
-                </td>
                 <td class="col-idx">${m.groupNumber}</td>
                 <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                 <td class="col-count">${m.count.toLocaleString()}</td>
@@ -1014,9 +1011,10 @@
 
     // --- 事件处理 (Assign) ---
     assignTableBody.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="toggle"]');
-        if (!btn) return;
-        const index = parseInt(btn.getAttribute('data-index'), 10);
+        // 点击行切换完成状态
+        const row = e.target.closest('tr[data-index]');
+        if (!row) return;
+        const index = parseInt(row.getAttribute('data-index'), 10);
         if (isNaN(index) || index < 0 || index >= materials.length) return;
         materials[index].done = !materials[index].done;
         renderAssignAll();
