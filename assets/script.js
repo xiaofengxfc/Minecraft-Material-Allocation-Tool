@@ -16,7 +16,9 @@
 
     function switchTab(tabName) {
         tabButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
+            const isActive = btn.dataset.tab === tabName;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
         });
         tabPanels.forEach(panel => {
             panel.classList.toggle('active', panel.id === 'panel-' + tabName);
@@ -381,7 +383,7 @@
 
             const unmatchedNames = [];
             sorted.forEach(([name]) => {
-                const chineseName = (typeof translateBlockName === 'function') ? translateBlockName(name) : '';
+                const chineseName = translateBlockName(name) || '';
                 if (!chineseName) {
                     unmatchedNames.push(name);
                     console.error('[翻译缺失] 英文名称 "' + name + '" 没有对应的中文翻译');
@@ -462,7 +464,7 @@
             const boxes = Math.ceil(groups / 27);
             totalGroups += groups;
             totalBoxes += boxes;
-            const chineseName = (typeof translateBlockName === 'function') ? translateBlockName(name) : name;
+            const chineseName = translateBlockName(name) || name;
             html += `
                 <tr>
                     <td class="col-idx">${index + 1}</td>
@@ -566,7 +568,7 @@
             const boxes = Math.ceil(groups / 27);
             totalGroups += groups;
             totalBoxes += boxes;
-            const chineseName = (typeof translateBlockName === 'function') ? translateBlockName(name) : name;
+            const chineseName = translateBlockName(name) || name;
             csv += `${index + 1},${csvEscape(name)},${csvEscape(chineseName)},${count},${groups},${boxes}\n`;
         });
 
@@ -595,7 +597,6 @@
         infoGrid.innerHTML = '';
         infoSection.classList.add('hidden');
         previewSection.classList.add('hidden');
-        convertProgressSection.classList.add('hidden');
         hideTranslationWarning();
         // 恢复上传区
         if (convertContainer) convertContainer.classList.remove('has-results');
@@ -625,6 +626,7 @@
     // ==================================================================
 
     // --- DOM 引用 (Assign) ---
+    const assignContainer = document.querySelector('#panel-assign .container');
     const assignUploadArea = document.getElementById('upload-area-csv');
     const assignUploadSection = document.getElementById('assign-upload-section');
     const assignFileInput = document.getElementById('file-input-csv');
@@ -862,7 +864,7 @@
 
         const blocks = convertData.blocks;
         materials = blocks.map(([name, props, count]) => {
-            const chineseName = (typeof translateBlockName === 'function') ? translateBlockName(name) : name;
+            const chineseName = translateBlockName(name) || name;
             return {
                 name: chineseName,
                 chineseName: chineseName || name,
@@ -885,15 +887,16 @@
 
     // --- UI 切换 (Assign) ---
     function showAssignMainUI() {
-        assignUploadSection.classList.add('hidden');
         assignToolbar.classList.remove('hidden');
         assignTableSection.classList.remove('hidden');
+        if (assignContainer) assignContainer.classList.add('has-results');
     }
 
     function showAssignUploadUI() {
         assignUploadSection.classList.remove('hidden');
         assignToolbar.classList.add('hidden');
         assignTableSection.classList.add('hidden');
+        if (assignContainer) assignContainer.classList.remove('has-results');
     }
 
     // --- 渲染 (Assign) ---
@@ -968,6 +971,10 @@
 
     // --- XLSX 导出 ---
     btnExportXlsx.addEventListener('click', () => {
+        if (typeof XLSX === 'undefined') {
+            showToast('XLSX 库加载失败，请检查网络连接后刷新页面');
+            return;
+        }
         if (materials.length === 0) {
             showToast('没有可导出的数据');
             return;

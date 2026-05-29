@@ -1,4 +1,5 @@
 import gzip, struct, sys
+from collections import Counter
 
 filename = sys.argv[1] if len(sys.argv) > 1 else '100w收集.litematic'
 
@@ -136,7 +137,6 @@ for rname, region in regions.items():
                     print(f"  BlockStates raw data: {len(block_data)} longs")
                     palette_size = len(palette)
                     bits_per_block = max(2, (palette_size - 1).bit_length())
-                    blocks_per_long = 64 // bits_per_block
                     size = region.get('Size', {})
                     sx, sy, sz = size.get('x', 1), size.get('y', 1), size.get('z', 1)
                     total_blocks = sx * sy * sz
@@ -144,17 +144,20 @@ for rname, region in regions.items():
                     mask = (1 << bits_per_block) - 1
                     
                     # Decode block data into palette indices
-                    indices = []
-                    for long_val in block_data:
-                        for j in range(blocks_per_long):
-                            idx = (long_val >> (j * bits_per_block)) & mask
-                            indices.append(idx)
+                    # Minecraft 1.16+ uses continuous bitstream across long boundaries,
+                    # not per-long fixed-size packing. Combine all longs into one big int.
+                    combined = 0
+                    for long_val in reversed(block_data):
+                        combined = (combined << 64) | long_val
                     
-                    indices = indices[:total_blocks]
+                    indices = []
+                    for _ in range(total_blocks):
+                        idx = combined & mask
+                        indices.append(idx)
+                        combined >>= bits_per_block
                     print(f"  Decoded {len(indices)} block indices")
                     
                     # Count blocks
-                    from collections import Counter
                     counter = Counter()
                     for idx in indices:
                         if 0 <= idx < len(palette):
