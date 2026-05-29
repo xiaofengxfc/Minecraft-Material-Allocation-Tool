@@ -1053,17 +1053,17 @@
             return;
         }
 
-        var headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '状态', '材料收集者'];
+        var headerRow = ['序号', '中文名称', '总数', '组数', '盒数', '材料组', '材料收集者'];
         var sorted = materials.slice().sort(function (a, b) { return a.groupNumber - b.groupNumber; });
         var dataRows = [];
         var lastGroup = -1;
         var merges = [];
 
         sorted.forEach(function (m) {
-            // 分组分隔行（合并整行）
+            // 分组分隔行（合并整行，醒目分隔）
             if (m.groupNumber !== lastGroup && lastGroup !== -1) {
-                dataRows.push(['——  材料组 ' + lastGroup + '  ——', '', '', '', '', '', '', '']);
-                merges.push({ s: { r: dataRows.length, c: 0 }, e: { r: dataRows.length, c: 7 } });
+                dataRows.push(['═══  材料组 ' + lastGroup + '  ═══', '', '', '', '', '', '']);
+                merges.push({ s: { r: dataRows.length, c: 0 }, e: { r: dataRows.length, c: 6 } });
             }
             lastGroup = m.groupNumber;
             dataRows.push([
@@ -1073,7 +1073,6 @@
                 m.groups,
                 m.boxes,
                 '材料组' + m.groupNumber,
-                m.done ? '✓ 已完成' : '○ 未完成',
                 m.assignee || '',
             ]);
         });
@@ -1083,16 +1082,13 @@
             var totalCount = sorted.reduce(function (s, m) { return s + m.count; }, 0);
             var totalGroups = sorted.reduce(function (s, m) { return s + m.groups; }, 0);
             var totalBoxes = sorted.reduce(function (s, m) { return s + m.boxes; }, 0);
-            var doneCount = sorted.filter(function (m) { return m.done; }).length;
             var groupCount = new Set(sorted.map(function (m) { return m.groupNumber; })).size;
 
-            // 空行 + 汇总行
-            dataRows.push(['', '', '', '', '', '', '', '']);
+            dataRows.push(['', '', '', '', '', '', '']);
             dataRows.push([
                 '', '合计 ' + sorted.length + ' 种材料',
                 totalCount, totalGroups, totalBoxes,
                 groupCount + ' 个材料组',
-                '已完成 ' + doneCount + ' / ' + sorted.length,
                 '',
             ]);
         }
@@ -1104,10 +1100,10 @@
         // 列宽
         ws['!cols'] = [
             { wch: 7 }, { wch: 26 }, { wch: 10 }, { wch: 8 },
-            { wch: 8 }, { wch: 13 }, { wch: 14 }, { wch: 14 },
+            { wch: 8 }, { wch: 13 }, { wch: 14 },
         ];
 
-        // 合并分组分隔行（注意: row 0 = header, dataRows 从 row 1 开始）
+        // 合并分组分隔行
         if (merges.length > 0) {
             ws['!merges'] = [];
             merges.forEach(function (m) {
