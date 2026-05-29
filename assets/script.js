@@ -409,8 +409,6 @@
                 previewSection.classList.remove('hidden');
                 // 标记有结果，折叠上传区
                 if (convertContainer) convertContainer.classList.add('has-results');
-                // 自动滚动到预览区域（尤其手机端确保用户能看到结果）
-                previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 400);
         } catch (err) {
             convertProgressSection.classList.add('hidden');
