@@ -37,7 +37,7 @@
         document.addEventListener('touchstart', (e) => {
             if (e.touches.length !== 1) { tracking = false; return; }
             // 不拦截可滚动区域内的滑动（表格横向滚动、过滤标签滚动等）
-            if (e.target.closest('.table-wrapper, .filter-group, [style*="overflow"]')) {
+            if (e.target.closest('.table-wrapper, [style*="overflow"]')) {
                 tracking = false;
                 return;
             }
@@ -630,12 +630,8 @@
     const assignFileInput = document.getElementById('file-input-csv');
     const assignToolbar = document.getElementById('assign-toolbar');
     const searchInput = document.getElementById('search-input');
-    const filterUnassigned = document.getElementById('filter-unassigned');
-    const filterAssigned = document.getElementById('filter-assigned');
     const statsSummary = document.getElementById('stats-summary');
-    const btnResetAll = document.getElementById('btn-reset-all');
     const btnExportXlsx = document.getElementById('btn-export-xlsx');
-    const btnToggleAll = document.getElementById('btn-toggle-all');
     const assignTableSection = document.getElementById('assign-table-section');
     const assignTableBody = document.getElementById('assign-table-body');
     const assignEmptyState = document.getElementById('assign-empty-state');
@@ -806,7 +802,6 @@
                 count: count,
                 groups: groups,
                 boxes: boxes,
-                done: false,
                 assignee: '',
             });
         }
@@ -825,7 +820,6 @@
                     name: row.chineseName,
                     chineseName: row.chineseName,
                     count: row.count,
-                    done: row.done,
                     assignee: row.assignee,
                 });
             }
@@ -875,7 +869,6 @@
                 count: count,
                 groups: Math.ceil(count / 64),
                 boxes: Math.ceil(Math.ceil(count / 64) / 27),
-                done: false,
                 assignee: '',
             };
         });
@@ -906,34 +899,23 @@
     // --- 渲染 (Assign) ---
     function getFilteredMaterials() {
         const searchTerm = searchInput.value.trim().toLowerCase();
-        const showUnassigned = filterUnassigned.checked;
-        const showAssigned = filterAssigned.checked;
+        if (!searchTerm) return materials;
 
         return materials.filter((m) => {
-            if (searchTerm) {
-                const cnName = m.chineseName || '';
-                const groupStr = '材料组' + m.groupNumber;
-                if (!cnName.toLowerCase().includes(searchTerm) &&
-                    !groupStr.toLowerCase().includes(searchTerm) &&
-                    !String(m.count).includes(searchTerm) &&
-                    !String(m.groups).includes(searchTerm) &&
-                    !String(m.boxes).includes(searchTerm) &&
-                    !String(m.groupNumber).includes(searchTerm)) {
-                    return false;
-                }
-            }
-            if (showUnassigned !== showAssigned) {
-                if (showUnassigned && m.done) return false;
-                if (showAssigned && !m.done) return false;
-            }
-            return true;
+            const cnName = m.chineseName || '';
+            const groupStr = '材料组' + m.groupNumber;
+            return cnName.toLowerCase().includes(searchTerm) ||
+                groupStr.toLowerCase().includes(searchTerm) ||
+                String(m.count).includes(searchTerm) ||
+                String(m.groups).includes(searchTerm) ||
+                String(m.boxes).includes(searchTerm) ||
+                String(m.groupNumber).includes(searchTerm);
         });
     }
 
     function renderAssignAll() {
         renderAssignTable();
         renderAssignStats();
-        updateToggleButton();
     }
 
     function renderAssignTable() {
@@ -952,11 +934,6 @@
         let lastGroup = -1;
 
         sorted.forEach((m) => {
-            const originalIndex = materials.indexOf(m);
-            const doneClass = m.done ? 'completed' : '';
-            const statusClass = m.done ? 'done' : '';
-            const statusSymbol = m.done ? '&#10003;' : '';
-
             if (m.groupNumber !== lastGroup) {
                 lastGroup = m.groupNumber;
                 html += `
@@ -969,7 +946,7 @@
             }
 
             html += `
-            <tr class="${doneClass}" data-index="${originalIndex}">
+            <tr>
                 <td class="col-idx">${m.groupNumber}</td>
                 <td class="col-cn-name">${escapeHTML(m.chineseName || '未知材料')}</td>
                 <td class="col-count">${m.count.toLocaleString()}</td>
@@ -983,42 +960,11 @@
 
     function renderAssignStats() {
         const total = materials.length;
-        const done = materials.filter(m => m.done).length;
         const groupCount = new Set(materials.map(m => m.groupNumber)).size;
-        statsSummary.innerHTML = `<strong>${done}</strong> / ${total} 已完成 · <strong>${groupCount}</strong> 个材料组`;
+        statsSummary.innerHTML = `<strong>${total}</strong> 种材料 · <strong>${groupCount}</strong> 个材料组`;
     }
-
-    function updateToggleButton() {
-        const allDone = materials.length > 0 && materials.every(m => m.done);
-        btnToggleAll.textContent = allDone ? '全部取消标记' : '全部标记完成';
-    }
-
-    // --- 事件处理 (Assign) ---
-    assignTableBody.addEventListener('click', (e) => {
-        // 点击行切换完成状态
-        const row = e.target.closest('tr[data-index]');
-        if (!row) return;
-        const index = parseInt(row.getAttribute('data-index'), 10);
-        if (isNaN(index) || index < 0 || index >= materials.length) return;
-        materials[index].done = !materials[index].done;
-        renderAssignAll();
-    });
 
     searchInput.addEventListener('input', () => renderAssignTable());
-    filterUnassigned.addEventListener('change', () => renderAssignTable());
-    filterAssigned.addEventListener('change', () => renderAssignTable());
-
-    btnToggleAll.addEventListener('click', () => {
-        const allDone = materials.every(m => m.done);
-        materials.forEach(m => { m.done = !allDone; });
-        renderAssignAll();
-    });
-
-    btnResetAll.addEventListener('click', () => {
-        if (!confirm('确认重置所有材料的完成状态和分配信息？此操作不可撤销。')) return;
-        materials.forEach(m => { m.done = false; m.assignee = ''; });
-        renderAssignAll();
-    });
 
     // --- XLSX 导出 ---
     btnExportXlsx.addEventListener('click', () => {

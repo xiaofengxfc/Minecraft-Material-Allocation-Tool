@@ -484,46 +484,6 @@ body {
     color: var(--text-muted);
 }
 
-/* Filter chips */
-.filter-group {
-    display: flex;
-    gap: 6px;
-}
-
-.filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 15px;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: rgba(255,255,255,0.5);
-    border: 1px solid var(--border-subtle);
-    border-radius: 20px;
-    cursor: pointer;
-    user-select: none;
-    transition: all var(--transition);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-
-.filter-chip:hover {
-    border-color: var(--border-soft);
-    background: rgba(255,255,255,0.8);
-}
-
-.filter-chip input {
-    display: none;
-}
-
-.filter-chip:has(input:checked) {
-    background: rgba(91,140,172,0.14);
-    border-color: var(--accent);
-    color: var(--accent);
-    font-weight: 600;
-    box-shadow: var(--shadow-xs);
-}
-
 /* Stats summary */
 .stats-summary {
     font-size: 0.8rem;
@@ -813,14 +773,6 @@ body {
     background: rgba(91,140,172,0.06);
 }
 
-.material-table tbody tr.completed {
-    background: rgba(91,140,172,0.08);
-}
-
-.material-table tbody tr.completed:hover {
-    background: rgba(91,140,172,0.13);
-}
-
 /* Group separator — 冰蓝胶囊标签 */
 .material-table tbody tr.group-separator {
     background: transparent;
@@ -899,15 +851,6 @@ body {
     font-weight: 700;
     color: var(--warm);
     font-variant-numeric: tabular-nums;
-}
-
-.completed .col-cn-name {
-    text-decoration: line-through;
-    color: var(--text-muted);
-}
-
-.completed .col-count {
-    color: var(--accent);
 }
 
 /* Empty state */
@@ -1242,18 +1185,6 @@ body {
         padding: 9px 12px 9px 34px;
     }
 
-    .filter-group {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding-bottom: 4px;
-    }
-
-    .filter-chip {
-        font-size: 0.76rem;
-        padding: 6px 11px;
-        flex-shrink: 0;
-    }
-
     .stats-summary {
         font-size: 0.74rem;
         width: 100%;
@@ -1516,18 +1447,6 @@ body {
         background: rgba(20,26,34,0.80);
     }
 
-    .filter-chip {
-        background: rgba(20,26,34,0.40);
-    }
-
-    .filter-chip:hover {
-        background: rgba(20,26,34,0.65);
-    }
-
-    .filter-chip:has(input:checked) {
-        background: rgba(116,168,200,0.16);
-    }
-
     .block-table thead,
     .material-table thead {
         background: rgba(116,168,200,0.08);
@@ -1541,14 +1460,6 @@ body {
     .block-table tbody tr:hover,
     .material-table tbody tr:hover {
         background: rgba(116,168,200,0.08);
-    }
-
-    .material-table tbody tr.completed {
-        background: rgba(116,168,200,0.06);
-    }
-
-    .material-table tbody tr.completed:hover {
-        background: rgba(116,168,200,0.12);
     }
 
     .material-table tbody tr.group-separator {
