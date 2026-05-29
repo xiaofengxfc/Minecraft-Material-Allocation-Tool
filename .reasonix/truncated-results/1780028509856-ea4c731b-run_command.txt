@@ -1,0 +1,1141 @@
+$ node -e "const fs=require('fs'); const c=fs.readFileSync('assets/style.css','utf8'); const lines=c.split('\n'); lines.forEach((l,i)=>{if(l.includes('assign-progress')||l.includes('progress-header')||l.includes('progress-label')||l.includes('progress-percent')||l.includes('progress-detail')) console.log((i+1)+': '+lines[i-1]||''); console.log((i+1)+': '+l); console.log((i+2)+': '+(lines[i+1]||''))})"
+[exit 0]
+1: /* ========================================
+2:    材料表工具集 — 冰蓝霜白玻璃质感
+2:    材料表工具集 — 冰蓝霜白玻璃质感
+3:    设计：Glassmorphism · 通透 · 漂浮感
+3:    设计：Glassmorphism · 通透 · 漂浮感
+4:    ======================================== */
+4:    ======================================== */
+5: 
+5: 
+6: /* ----- Reset & Base ----- */
+6: /* ----- Reset & Base ----- */
+7: *,
+7: *,
+8: *::before,
+8: *::before,
+9: *::after {
+9: *::after {
+10:     box-sizing: border-box;
+10:     box-sizing: border-box;
+11:     margin: 0;
+11:     margin: 0;
+12:     padding: 0;
+12:     padding: 0;
+13: }
+13: }
+14: 
+14: 
+15: :root {
+15: :root {
+16:     /* === 冰蓝霜白色板 === */
+16:     /* === 冰蓝霜白色板 === */
+17:     --bg-start: #e6eef6;
+17:     --bg-start: #e6eef6;
+18:     --bg-mid: #eef2f7;
+18:     --bg-mid: #eef2f7;
+19:     --bg-end: #f5f6f9;
+19:     --bg-end: #f5f6f9;
+20: 
+20: 
+21:     /* 玻璃面板 */
+21:     /* 玻璃面板 */
+22:     --glass: rgba(255,255,255,0.68);
+22:     --glass: rgba(255,255,255,0.68);
+23:     --glass-strong: rgba(255,255,255,0.82);
+23:     --glass-strong: rgba(255,255,255,0.82);
+24:     --glass-hover: rgba(255,255,255,0.88);
+24:     --glass-hover: rgba(255,255,255,0.88);
+25:     --glass-alt: rgba(248,250,253,0.55);
+25:     --glass-alt: rgba(248,250,253,0.55);
+26: 
+26: 
+27:     /* 边框 */
+27:     /* 边框 */
+28:     --border-glass: rgba(255,255,255,0.55);
+28:     --border-glass: rgba(255,255,255,0.55);
+29:     --border-subtle: rgba(160,180,200,0.22);
+29:     --border-subtle: rgba(160,180,200,0.22);
+30:     --border-soft: rgba(160,180,200,0.35);
+30:     --border-soft: rgba(160,180,200,0.35);
+31: 
+31: 
+32:     /* 文字 */
+32:     /* 文字 */
+33:     --text: #242e38;
+33:     --text: #242e38;
+34:     --text-secondary: #5a6874;
+34:     --text-secondary: #5a6874;
+35:     --text-muted: #8a98a4;
+35:     --text-muted: #8a98a4;
+36: 
+36: 
+37:     /* 冰蓝强调 */
+37:     /* 冰蓝强调 */
+38:     --accent: #5b8cac;
+38:     --accent: #5b8cac;
+39:     --accent-hover: #4a7a9a;
+39:     --accent-hover: #4a7a9a;
+40:     --accent-light: rgba(91,140,172,0.10);
+40:     --accent-light: rgba(91,140,172,0.10);
+41:     --accent-glow: rgba(91,140,172,0.20);
+41:     --accent-glow: rgba(91,140,172,0.20);
+42:     --accent-bg: rgba(91,140,172,0.06);
+42:     --accent-bg: rgba(91,140,172,0.06);
+43: 
+43: 
+44:     /* 暖色点缀 */
+44:     /* 暖色点缀 */
+45:     --warm: #7c6652;
+45:     --warm: #7c6652;
+46:     --warm-hover: #5e4c3a;
+46:     --warm-hover: #5e4c3a;
+47:     --warm-mid: #9e8c7a;
+47:     --warm-mid: #9e8c7a;
+48:     --warm-light: rgba(124,102,82,0.08);
+48:     --warm-light: rgba(124,102,82,0.08);
+49: 
+49: 
+50:     /* 危险色 */
+50:     /* 危险色 */
+51:     --danger: #a06868;
+51:     --danger: #a06868;
+52:     --danger-hover: #885454;
+52:     --danger-hover: #885454;
+53:     --danger-light: rgba(160,104,104,0.08);
+53:     --danger-light: rgba(160,104,104,0.08);
+54: 
+54: 
+55:     /* 警告色 */
+55:     /* 警告色 */
+56:     --warning-bg: rgba(245,225,140,0.25);
+56:     --warning-bg: rgba(245,225,140,0.25);
+57:     --warning-border: rgba(200,160,40,0.45);
+57:     --warning-border: rgba(200,160,40,0.45);
+58:     --warning-text: #7a6018;
+58:     --warning-text: #7a6018;
+59: 
+59: 
+60:     /* 圆角 */
+60:     /* 圆角 */
+61:     --radius-sm: 8px;
+61:     --radius-sm: 8px;
+62:     --radius: 12px;
+62:     --radius: 12px;
+63:     --radius-lg: 16px;
+63:     --radius-lg: 16px;
+64:     --radius-xl: 20px;
+64:     --radius-xl: 20px;
+65: 
+65: 
+66:     /* 阴影 — 蓝灰调漂浮感 */
+66:     /* 阴影 — 蓝灰调漂浮感 */
+67:     --shadow-xs: 0 1px 2px rgba(100,120,140,0.06);
+67:     --shadow-xs: 0 1px 2px rgba(100,120,140,0.06);
+68:     --shadow-sm: 0 2px 6px rgba(100,120,140,0.07), 0 1px 3px rgba(100,120,140,0.04);
+68:     --shadow-sm: 0 2px 6px rgba(100,120,140,0.07), 0 1px 3px rgba(100,120,140,0.04);
+69:     --shadow: 0 4px 14px rgba(100,120,140,0.09), 0 2px 6px rgba(100,120,140,0.05);
+69:     --shadow: 0 4px 14px rgba(100,120,140,0.09), 0 2px 6px rgba(100,120,140,0.05);
+70:     --shadow-lg: 0 8px 28px rgba(100,120,140,0.11), 0 3px 10px rgba(100,120,140,0.06);
+70:     --shadow-lg: 0 8px 28px rgba(100,120,140,0.11), 0 3px 10px rgba(100,120,140,0.06);
+71:     --shadow-xl: 0 14px 40px rgba(100,120,140,0.13), 0 5px 16px rgba(100,120,140,0.07);
+71:     --shadow-xl: 0 14px 40px rgba(100,120,140,0.13), 0 5px 16px rgba(100,120,140,0.07);
+72: 
+72: 
+73:     /* 动画 */
+73:     /* 动画 */
+74:     --transition-fast: 140ms ease;
+74:     --transition-fast: 140ms ease;
+75:     --transition: 200ms ease;
+75:     --transition: 200ms ease;
+76:     --transition-slow: 320ms ease;
+76:     --transition-slow: 320ms ease;
+77: }
+77: }
+78: 
+78: 
+79: html {
+79: html {
+80:     font-size: 16px;
+80:     font-size: 16px;
+81:     scroll-behavior: smooth;
+81:     scroll-behavior: smooth;
+82: }
+82: }
+83: 
+83: 
+84: body {
+84: body {
+85:     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+85:     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+86:         "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+86:         "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+87:     background:
+87:     background:
+88:         radial-gradient(ellipse 80% 60% at 50% -10%, #dce8f4 0%, transparent 60%),
+88:         radial-gradient(ellipse 80% 60% at 50% -10%, #dce8f4 0%, transparent 60%),
+89:         radial-gradient(ellipse 60% 50% at 85% 80%, #e8eef6 0%, transparent 50%),
+89:         radial-gradient(ellipse 60% 50% at 85% 80%, #e8eef6 0%, transparent 50%),
+90:         linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 40%, var(--bg-end) 100%);
+90:         linear-gradient(180deg, var(--bg-start) 0%, var(--bg-mid) 40%, var(--bg-end) 100%);
+91:     color: var(--text);
+91:     color: var(--text);
+92:     line-height: 1.6;
+92:     line-height: 1.6;
+93:     min-height: 100vh;
+93:     min-height: 100vh;
+94:     overflow-x: clip;
+94:     overflow-x: clip;
+95:     max-width: 100vw;
+95:     max-width: 100vw;
+96:     -webkit-font-smoothing: antialiased;
+96:     -webkit-font-smoothing: antialiased;
+97:     -moz-osx-font-smoothing: grayscale;
+97:     -moz-osx-font-smoothing: grayscale;
+98: }
+98: }
+99: 
+99: 
+100: /* ==================== Tab Navigation ==================== */
+100: /* ==================== Tab Navigation ==================== */
+101: .tab-nav {
+101: .tab-nav {
+102:     position: sticky;
+102:     position: sticky;
+103:     top: 0;
+103:     top: 0;
+104:     z-index: 100;
+104:     z-index: 100;
+105:     display: flex;
+105:     display: flex;
+106:     gap: 2px;
+106:     gap: 2px;
+107:     padding: 6px 20px 0;
+107:     padding: 6px 20px 0;
+108:     background: rgba(255,255,255,0.75);
+108:     background: rgba(255,255,255,0.75);
+109:     backdrop-filter: blur(20px) saturate(1.4);
+109:     backdrop-filter: blur(20px) saturate(1.4);
+110:     -webkit-backdrop-filter: blur(20px) saturate(1.4);
+110:     -webkit-backdrop-filter: blur(20px) saturate(1.4);
+111:     border-bottom: 1px solid var(--border-subtle);
+111:     border-bottom: 1px solid var(--border-subtle);
+112:     box-shadow: 0 1px 8px rgba(100,120,140,0.06);
+112:     box-shadow: 0 1px 8px rgba(100,120,140,0.06);
+113: }
+113: }
+114: 
+114: 
+115: .tab-btn {
+115: .tab-btn {
+116:     position: relative;
+116:     position: relative;
+117:     display: inline-flex;
+117:     display: inline-flex;
+118:     align-items: center;
+118:     align-items: center;
+119:     justify-content: center;
+119:     justify-content: center;
+120:     padding: 13px 28px;
+120:     padding: 13px 28px;
+121:     font-size: 0.9rem;
+121:     font-size: 0.9rem;
+122:     font-weight: 600;
+122:     font-weight: 600;
+123:     color: var(--text-muted);
+123:     color: var(--text-muted);
+124:     background: transparent;
+124:     background: transparent;
+125:     border: none;
+125:     border: none;
+126:     border-radius: var(--radius) var(--radius) 0 0;
+126:     border-radius: var(--radius) var(--radius) 0 0;
+127:     cursor: pointer;
+127:     cursor: pointer;
+128:     transition: color var(--transition), background var(--transition);
+128:     transition: color var(--transition), background var(--transition);
+129:     letter-spacing: 0.02em;
+129:     letter-spacing: 0.02em;
+130:     white-space: nowrap;
+130:     white-space: nowrap;
+131:     touch-action: manipulation;
+131:     touch-action: manipulation;
+132:     -webkit-tap-highlight-color: transparent;
+132:     -webkit-tap-highlight-color: transparent;
+133:     min-height: 46px;
+133:     min-height: 46px;
+134:     user-select: none;
+134:     user-select: none;
+135:     margin-bottom: -1px;
+135:     margin-bottom: -1px;
+136: }
+136: }
+137: 
+137: 
+138: .tab-btn::after {
+138: .tab-btn::after {
+139:     content: '';
+139:     content: '';
+140:     position: absolute;
+140:     position: absolute;
+141:     bottom: 0;
+141:     bottom: 0;
+142:     left: 50%;
+142:     left: 50%;
+143:     transform: translateX(-50%) scaleX(0);
+143:     transform: translateX(-50%) scaleX(0);
+144:     width: 55%;
+144:     width: 55%;
+145:     height: 3px;
+145:     height: 3px;
+146:     background: var(--accent);
+146:     background: var(--accent);
+147:     border-radius: 3px 3px 0 0;
+147:     border-radius: 3px 3px 0 0;
+148:     transition: transform var(--transition);
+148:     transition: transform var(--transition);
+149: }
+149: }
+150: 
+150: 
+151: .tab-btn:hover {
+151: .tab-btn:hover {
+152:     color: var(--text-secondary);
+152:     color: var(--text-secondary);
+153:     background: rgba(91,140,172,0.05);
+153:     background: rgba(91,140,172,0.05);
+154: }
+154: }
+155: 
+155: 
+156: .tab-btn.active {
+156: .tab-btn.active {
+157:     color: var(--accent);
+157:     color: var(--accent);
+158: }
+158: }
+159: 
+159: 
+160: .tab-btn.active::after {
+160: .tab-btn.active::after {
+161:     transform: translateX(-50%) scaleX(1);
+161:     transform: translateX(-50%) scaleX(1);
+162: }
+162: }
+163: 
+163: 
+164: .tab-panel {
+164: .tab-panel {
+165:     display: none;
+165:     display: none;
+166: }
+166: }
+167: 
+167: 
+168: .tab-panel.active {
+168: .tab-panel.active {
+169:     display: block;
+169:     display: block;
+170: }
+170: }
+171: 
+171: 
+172: .tab-indicator {
+172: .tab-indicator {
+173:     display: none;
+173:     display: none;
+174: }
+174: }
+175: 
+175: 
+176: /* ==================== Container ==================== */
+176: /* ==================== Container ==================== */
+177: .container {
+177: .container {
+178:     max-width: 1060px;
+178:     max-width: 1060px;
+179:     margin: 0 auto;
+179:     margin: 0 auto;
+180:     padding: 36px 28px 60px;
+180:     padding: 36px 28px 60px;
+181: }
+181: }
+182: 
+182: 
+183: /* ==================== Header ==================== */
+183: /* ==================== Header ==================== */
+184: .header {
+184: .header {
+185:     text-align: center;
+185:     text-align: center;
+186:     margin-bottom: 36px;
+186:     margin-bottom: 36px;
+187:     padding: 32px 28px 28px;
+187:     padding: 32px 28px 28px;
+188:     background: var(--glass);
+188:     background: var(--glass);
+189:     backdrop-filter: blur(16px);
+189:     backdrop-filter: blur(16px);
+190:     -webkit-backdrop-filter: blur(16px);
+190:     -webkit-backdrop-filter: blur(16px);
+191:     border: 1px solid var(--border-glass);
+191:     border: 1px solid var(--border-glass);
+192:     border-radius: var(--radius-xl);
+192:     border-radius: var(--radius-xl);
+193:     box-shadow: var(--shadow-sm);
+193:     box-shadow: var(--shadow-sm);
+194: }
+194: }
+195: 
+195: 
+196: .header h1 {
+196: .header h1 {
+197:     font-size: 1.5rem;
+197:     font-size: 1.5rem;
+198:     font-weight: 700;
+198:     font-weight: 700;
+199:     color: var(--text);
+199:     color: var(--text);
+200:     letter-spacing: 0.04em;
+200:     letter-spacing: 0.04em;
+201:     margin-bottom: 6px;
+201:     margin-bottom: 6px;
+202: }
+202: }
+203: 
+203: 
+204: .subtitle {
+204: .subtitle {
+205:     font-size: 0.875rem;
+205:     font-size: 0.875rem;
+206:     color: var(--text-secondary);
+206:     color: var(--text-secondary);
+207:     font-weight: 400;
+207:     font-weight: 400;
+208: }
+208: }
+209: 
+209: 
+210: /* ==================== Upload Section ==================== */
+210: /* ==================== Upload Section ==================== */
+211: .upload-section {
+211: .upload-section {
+212:     margin-bottom: 28px;
+212:     margin-bottom: 28px;
+213:     transition: all var(--transition-slow);
+213:     transition: all var(--transition-slow);
+214: }
+214: }
+215: 
+215: 
+216: .upload-area {
+216: .upload-area {
+217:     display: flex;
+217:     display: flex;
+218:     flex-direction: column;
+218:     flex-direction: column;
+219:     align-items: center;
+219:     align-items: center;
+220:     justify-content: center;
+220:     justify-content: center;
+221:     gap: 14px;
+221:     gap: 14px;
+222:     padding: 56px 28px;
+222:     padding: 56px 28px;
+223:     border: 2px dashed var(--border-soft);
+223:     border: 2px dashed var(--border-soft);
+224:     border-radius: var(--radius-xl);
+224:     border-radius: var(--radius-xl);
+225:     background: var(--glass);
+225:     background: var(--glass);
+226:     backdrop-filter: blur(14px);
+226:     backdrop-filter: blur(14px);
+227:     -webkit-backdrop-filter: blur(14px);
+227:     -webkit-backdrop-filter: blur(14px);
+228:     cursor: pointer;
+228:     cursor: pointer;
+229:     transition: all var(--transition);
+229:     transition: all var(--transition);
+230:     user-select: none;
+230:     user-select: none;
+231: }
+231: }
+232: 
+232: 
+233: .upload-area:hover {
+233: .upload-area:hover {
+234:     border-color: var(--accent);
+234:     border-color: var(--accent);
+235:     background: var(--glass-hover);
+235:     background: var(--glass-hover);
+236:     box-shadow: var(--shadow), 0 0 0 4px var(--accent-glow);
+236:     box-shadow: var(--shadow), 0 0 0 4px var(--accent-glow);
+237:     transform: translateY(-1px);
+237:     transform: translateY(-1px);
+238: }
+238: }
+239: 
+239: 
+240: .upload-area:active {
+240: .upload-area:active {
+241:     transform: scale(0.995);
+241:     transform: scale(0.995);
+242: }
+242: }
+243: 
+243: 
+244: .upload-area:focus-within {
+244: .upload-area:focus-within {
+245:     border-color: var(--accent);
+245:     border-color: var(--accent);
+246:     box-shadow: 0 0 0 4px var(--accent-glow);
+246:     box-shadow: 0 0 0 4px var(--accent-glow);
+247: }
+247: }
+248: 
+248: 
+249: .upload-area.drag-over {
+249: .upload-area.drag-over {
+250:     border-color: var(--accent);
+250:     border-color: var(--accent);
+251:     border-style: solid;
+251:     border-style: solid;
+252:     background: rgba(255,255,255,0.88);
+252:     background: rgba(255,255,255,0.88);
+253:     box-shadow: var(--shadow-lg), 0 0 0 6px var(--accent-glow);
+253:     box-shadow: var(--shadow-lg), 0 0 0 6px var(--accent-glow);
+254:     transform: scale(1.008);
+254:     transform: scale(1.008);
+255: }
+255: }
+256: 
+256: 
+257: .upload-icon {
+257: .upload-icon {
+258:     font-size: 3rem;
+258:     font-size: 3rem;
+259:     color: var(--accent);
+259:     color: var(--accent);
+260:     line-height: 1;
+260:     line-height: 1;
+261:     transition: transform var(--transition);
+261:     transition: transform var(--transition);
+262:     opacity: 0.8;
+262:     opacity: 0.8;
+263: }
+263: }
+264: 
+264: 
+265: .upload-area:hover .upload-icon {
+265: .upload-area:hover .upload-icon {
+266:     transform: translateY(-3px);
+266:     transform: translateY(-3px);
+267:     opacity: 1;
+267:     opacity: 1;
+268: }
+268: }
+269: 
+269: 
+270: .upload-area.drag-over .upload-icon {
+270: .upload-area.drag-over .upload-icon {
+271:     transform: translateY(-4px) scale(1.08);
+271:     transform: translateY(-4px) scale(1.08);
+272:     opacity: 1;
+272:     opacity: 1;
+273: }
+273: }
+274: 
+274: 
+275: .upload-text {
+275: .upload-text {
+276:     font-size: 1rem;
+276:     font-size: 1rem;
+277:     color: var(--text-secondary);
+277:     color: var(--text-secondary);
+278:     font-weight: 500;
+278:     font-weight: 500;
+279: }
+279: }
+280: 
+280: 
+281: .upload-hint {
+281: .upload-hint {
+282:     font-size: 0.8rem;
+282:     font-size: 0.8rem;
+283:     color: var(--text-muted);
+283:     color: var(--text-muted);
+284:     text-align: center;
+284:     text-align: center;
+285:     line-height: 1.5;
+285:     line-height: 1.5;
+286: }
+286: }
+287: 
+287: 
+288: /* === 有结果后上传区折叠 === */
+288: /* === 有结果后上传区折叠 === */
+289: .has-results .upload-section {
+289: .has-results .upload-section {
+290:     margin-bottom: 14px;
+290:     margin-bottom: 14px;
+291: }
+291: }
+292: 
+292: 
+293: .has-results .upload-area {
+293: .has-results .upload-area {
+294:     padding: 12px 20px;
+294:     padding: 12px 20px;
+295:     gap: 10px;
+295:     gap: 10px;
+296:     flex-direction: row;
+296:     flex-direction: row;
+297:     border-style: solid;
+297:     border-style: solid;
+298:     border-color: var(--border-subtle);
+298:     border-color: var(--border-subtle);
+299:     background: var(--glass-alt);
+299:     background: var(--glass-alt);
+300:     border-radius: var(--radius);
+300:     border-radius: var(--radius);
+301:     cursor: pointer;
+301:     cursor: pointer;
+302: }
+302: }
+303: 
+303: 
+304: .has-results .upload-icon {
+304: .has-results .upload-icon {
+305:     font-size: 1.1rem;
+305:     font-size: 1.1rem;
+306:     opacity: 0.6;
+306:     opacity: 0.6;
+307: }
+307: }
+308: 
+308: 
+309: .has-results .upload-text {
+309: .has-results .upload-text {
+310:     font-size: 0.8rem;
+310:     font-size: 0.8rem;
+311:     color: var(--text-muted);
+311:     color: var(--text-muted);
+312:     font-weight: 400;
+312:     font-weight: 400;
+313: }
+313: }
+314: 
+314: 
+315: .has-results .upload-hint {
+315: .has-results .upload-hint {
+316:     display: none;
+316:     display: none;
+317: }
+317: }
+318: 
+318: 
+319: .has-results .upload-area:hover {
+319: .has-results .upload-area:hover {
+320:     border-color: var(--border-soft);
+320:     border-color: var(--border-soft);
+321:     background: var(--glass);
+321:     background: var(--glass);
+322:     box-shadow: var(--shadow-xs);
+322:     box-shadow: var(--shadow-xs);
+323:     transform: none;
+323:     transform: none;
+324: }
+324: }
+325: 
+325: 
+326: /* ==================== Info Section ==================== */
+326: /* ==================== Info Section ==================== */
+327: .info-section {
+327: .info-section {
+328:     margin-bottom: 28px;
+328:     margin-bottom: 28px;
+329:     padding: 22px 24px;
+329:     padding: 22px 24px;
+330:     background: var(--glass);
+330:     background: var(--glass);
+331:     backdrop-filter: blur(14px);
+331:     backdrop-filter: blur(14px);
+332:     -webkit-backdrop-filter: blur(14px);
+332:     -webkit-backdrop-filter: blur(14px);
+333:     border: 1px solid var(--border-glass);
+333:     border: 1px solid var(--border-glass);
+334:     border-radius: var(--radius-lg);
+334:     border-radius: var(--radius-lg);
+335:     box-shadow: var(--shadow-xs);
+335:     box-shadow: var(--shadow-xs);
+336: }
+336: }
+337: 
+337: 
+338: .info-section h2 {
+338: .info-section h2 {
+339:     font-size: 1rem;
+339:     font-size: 1rem;
+340:     font-weight: 600;
+340:     font-weight: 600;
+341:     color: var(--text);
+341:     color: var(--text);
+342:     margin-bottom: 14px;
+342:     margin-bottom: 14px;
+343:     padding-bottom: 10px;
+343:     padding-bottom: 10px;
+344:     border-bottom: 1px solid var(--border-subtle);
+344:     border-bottom: 1px solid var(--border-subtle);
+345: }
+345: }
+346: 
+346: 
+347: .info-grid {
+347: .info-grid {
+348:     display: grid;
+348:     display: grid;
+349:     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+349:     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+350:     gap: 8px;
+350:     gap: 8px;
+351: }
+351: }
+352: 
+352: 
+353: .info-item {
+353: .info-item {
+354:     display: flex;
+354:     display: flex;
+355:     justify-content: space-between;
+355:     justify-content: space-between;
+356:     align-items: center;
+356:     align-items: center;
+357:     padding: 10px 14px;
+357:     padding: 10px 14px;
+358:     background: rgba(255,255,255,0.45);
+358:     background: rgba(255,255,255,0.45);
+359:     border: 1px solid var(--border-subtle);
+359:     border: 1px solid var(--border-subtle);
+360:     border-radius: var(--radius);
+360:     border-radius: var(--radius);
+361:     font-size: 0.85rem;
+361:     font-size: 0.85rem;
+362:     transition: all var(--transition-fast);
+362:     transition: all var(--transition-fast);
+363: }
+363: }
+364: 
+364: 
+365: .info-item:hover {
+365: .info-item:hover {
+366:     background: rgba(255,255,255,0.7);
+366:     background: rgba(255,255,255,0.7);
+367:     box-shadow: var(--shadow-xs);
+367:     box-shadow: var(--shadow-xs);
+368: }
+368: }
+369: 
+369: 
+370: .info-item .label {
+370: .info-item .label {
+371:     color: var(--text-secondary);
+371:     color: var(--text-secondary);
+372:     font-weight: 500;
+372:     font-weight: 500;
+373: }
+373: }
+374: 
+374: 
+375: .info-item .value {
+375: .info-item .value {
+376:     color: var(--text);
+376:     color: var(--text);
+377:     font-weight: 600;
+377:     font-weight: 600;
+378: }
+378: }
+379: 
+379: 
+380: /* ==================== Progress Section ==================== */
+380: /* ==================== Progress Section ==================== */
+381: .progress-section {
+381: .progress-section {
+382:     margin-bottom: 28px;
+382:     margin-bottom: 28px;
+383:     text-align: center;
+383:     text-align: center;
+384:     padding: 22px 28px;
+384:     padding: 22px 28px;
+385:     background: var(--glass);
+385:     background: var(--glass);
+386:     backdrop-filter: blur(14px);
+386:     backdrop-filter: blur(14px);
+387:     -webkit-backdrop-filter: blur(14px);
+387:     -webkit-backdrop-filter: blur(14px);
+388:     border: 1px solid var(--border-glass);
+388:     border: 1px solid var(--border-glass);
+389:     border-radius: var(--radius-lg);
+389:     border-radius: var(--radius-lg);
+390:     box-shadow: var(--shadow-xs);
+390:     box-shadow: var(--shadow-xs);
+391: }
+391: }
+392: 
+392: 
+393: .progress-bar-bg {
+393: .progress-bar-bg {
+394:     width: 100%;
+394:     width: 100%;
+395:     height: 8px;
+395:     height: 8px;
+396:     background: rgba(160,180,200,0.18);
+396:     background: rgba(160,180,200,0.18);
+397:     border-radius: 4px;
+397:     border-radius: 4px;
+398:     overflow: hidden;
+398:     overflow: hidden;
+399:     margin-bottom: 10px;
+399:     margin-bottom: 10px;
+400: }
+400: }
+401: 
+401: 
+402: .progress-bar {
+402: .progress-bar {
+403:     height: 100%;
+403:     height: 100%;
+404:     width: 0;
+404:     width: 0;
+405:     background: linear-gradient(90deg, #7aaccc, var(--accent));
+405:     background: linear-gradient(90deg, #7aaccc, var(--accent));
+406:     border-radius: 4px;
+406:     border-radius: 4px;
+407:     transition: width 150ms ease-out;
+407:     transition: width 150ms ease-out;
+408:     box-shadow: 0 0 10px var(--accent-glow);
+408:     box-shadow: 0 0 10px var(--accent-glow);
+409: }
+409: }
+410: 
+410: 
+411: .progress-text {
+411: .progress-text {
+412:     font-size: 0.85rem;
+412:     font-size: 0.85rem;
+413:     color: var(--text-secondary);
+413:     color: var(--text-secondary);
+414: }
+414: }
+415: 
+415: 
+416: /* ==================== Toolbar ==================== */
+416: /* ==================== Toolbar ==================== */
+417: .toolbar {
+417: .toolbar {
+418:     display: flex;
+418:     display: flex;
+419:     justify-content: space-between;
+419:     justify-content: space-between;
+420:     align-items: center;
+420:     align-items: center;
+421:     flex-wrap: wrap;
+421:     flex-wrap: wrap;
+422:     gap: 12px;
+422:     gap: 12px;
+423:     padding: 16px 22px;
+423:     padding: 16px 22px;
+424:     background: var(--glass-strong);
+424:     background: var(--glass-strong);
+425:     backdrop-filter: blur(16px);
+425:     backdrop-filter: blur(16px);
+426:     -webkit-backdrop-filter: blur(16px);
+426:     -webkit-backdrop-filter: blur(16px);
+427:     border: 1px solid var(--border-glass);
+427:     border: 1px solid var(--border-glass);
+428:     border-radius: var(--radius-lg);
+428:     border-radius: var(--radius-lg);
+429:     margin-bottom: 22px;
+429:     margin-bottom: 22px;
+430:     box-shadow: var(--shadow-xs);
+430:     box-shadow: var(--shadow-xs);
+431: }
+431: }
+432: 
+432: 
+433: .toolbar-left {
+433: .toolbar-left {
+434:     display: flex;
+434:     display: flex;
+435:     align-items: center;
+435:     align-items: center;
+436:     gap: 14px;
+436:     gap: 14px;
+437:     flex-wrap: wrap;
+437:     flex-wrap: wrap;
+438: }
+438: }
+439: 
+439: 
+440: .toolbar-right {
+440: .toolbar-right {
+441:     display: flex;
+441:     display: flex;
+442:     align-items: center;
+442:     align-items: center;
+443:     gap: 8px;
+443:     gap: 8px;
+444:     flex-wrap: wrap;
+444:     flex-wrap: wrap;
+445: }
+445: }
+446: 
+446: 
+447: /* Search */
+447: /* Search */
+448: .search-box {
+448: .search-box {
+449:     position: relative;
+449:     position: relative;
+450: }
+450: }
+451: 
+451: 
+452: .search-box .search-icon {
+452: .search-box .search-icon {
+453:     position: absolute;
+453:     position: absolute;
+454:     left: 12px;
+454:     left: 12px;
+455:     top: 50%;
+455:     top: 50%;
+456:     transform: translateY(-50%);
+456:     transform: translateY(-50%);
+457:     font-size: 0.9rem;
+457:     font-size: 0.9rem;
+458:     color: var(--text-muted);
+458:     color: var(--text-muted);
+459:     pointer-events: none;
+459:     pointer-events: none;
+460:     line-height: 1;
+460:     line-height: 1;
+461: }
+461: }
+462: 
+462: 
+463: .search-box input {
+463: .search-box input {
+464:     width: 220px;
+464:     width: 220px;
+465:     padding: 9px 14px 9px 36px;
+465:     padding: 9px 14px 9px 36px;
+466:     font-size: 0.85rem;
+466:     font-size: 0.85rem;
+467:     border: 1px solid var(--border-soft);
+467:     border: 1px solid var(--border-soft);
+468:     border-radius: var(--radius);
+468:     border-radius: var(--radius);
+469:     background: rgba(255,255,255,0.6);
+469:     background: rgba(255,255,255,0.6);
+470:     backdrop-filter: blur(8px);
+470:     backdrop-filter: blur(8px);
+471:     -webkit-backdrop-filter: blur(8px);
+471:     -webkit-backdrop-filter: blur(8px);
+472:     color: var(--text);
+472:     color: var(--text);
+473:     outline: none;
+473:     outline: none;
+474:     transition: all var(--transition);
+474:     transition: all var(--transition);
+475: }
+475: }
+476: 
+476: 
+477: .search-box input:focus {
+477: .search-box input:focus {
+478:     border-color: var(--accent);
+478:     border-color: var(--accent);
+479:     box-shadow: 0 0 0 3px var(--accent-glow);
+479:     box-shadow: 0 0 0 3px var(--accent-glow);
+480:     background: rgba(255,255,255,0.85);
+480:     background: rgba(255,255,255,0.85);
+481: }
+481: }
+482: 
+482: 
+483: .search-box input::placeholder {
+483: .search-box input::placeholder {
+484:     color: var(--text-muted);
+484:     color: var(--text-muted);
+485: }
+485: }
+486: 
+486: 
+487: /* Filter chips */
+487: /* Filter chips */
+488: .filter-group {
+488: .filter-group {
+489:     display: flex;
+489:     display: flex;
+490:     gap: 6px;
+490:     gap: 6px;
+491: }
+491: }
+492: 
+492: 
+493: .filter-chip {
+493: .filter-chip {
+494:     display: inline-flex;
+494:     display: inline-flex;
+495:     align-items: center;
+495:     align-items: center;
+496:     gap: 5px;
+496:     gap: 5px;
+497:     padding: 7px 15px;
+497:     padding: 7px 15px;
+498:     font-size: 0.8rem;
+498:     font-size: 0.8rem;
+499:     color: var(--text-secondary);
+499:     color: var(--text-secondary);
+500:     background: rgba(255,255,255,0.5);
+500:     background: rgba(255,255,255,0.5);
+501:     border: 1px solid var(--border-subtle);
+501:     border: 1px solid var(--border-subtle);
+502:     border-radius: 20px;
+502:     border-radius: 20px;
+503:     cursor: pointer;
+503:     cursor: pointer;
+504:     user-select: none;
+504:     user-select: none;
+505:     transition: all var(--transition);
+505:     transition: all var(--transition);
+506:     backdrop-filter: blur(6px);
+506:     backdrop-filter: blur(6px);
+507:     -webkit-backdrop-filter: blur(6px);
+507:     -webkit-backdrop-filter: blur(6px);
+508: }
+508: }
+509: 
+509: 
+510: .filter-chip:hover {
+510: .filter-chip:hover {
+511:     border-color: var(--border-soft);
+511:     border-color: var(--border-soft);
+512:     background: rgba(255,255,255,0.8);
+512:     background: rgba(255,255,255,0.8);
+513: }
+513: }
+514: 
+514: 
+515: .filter-chip input {
+515: .filter-chip input {
+516:     display: none;
+516:     display: none;
+517: }
+517: }
+518: 
+518: 
+519: .filter-chip:has(input:checked) {
+519: .filter-chip:has(input:checked) {
+520:     background: rgba(91,140,172,0.14);
+520:     background: rgba(91,140,172,0.14);
+521:     border-color: var(--accent);
+521:     border-color: var(--accent);
+522:     color: var(--accent);
+522:     color: var(--accent);
+523:     font-weight: 600;
+523:     font-weight: 600;
+524:     box-shadow: var(--shadow-xs);
+524:     box-shadow: var(--shadow-xs);
+525: }
+525: }
+526: 
+526: 
+527: /* Stats summary */
+527: /* Stats summary */
+528: .stats-summary {
+528: .stats-summary {
+529:     font-size: 0.8rem;
+529:     font-size: 0.8rem;
+530:     color: var(--text-secondary);
+530:     color: var(--text-secondary);
+531:     margin-right: 8px;
+531:     margin-right: 8px;
+532:     white-space: nowrap;
+532:     white-space: nowrap;
+533: }
+533: }
+534: 
+534: 
+535: .stats-summary strong {
+535: .stats-summary strong {
+536:     color: var(--text);
+536:     color: var(--text);
+537:     font-weight: 700;
+537:     font-weight: 700;
+538: }
+538: }
+539: 
+539: 
+540: /* ==================== Buttons ==================== */
+540: /* ==================== Buttons ==================== */
+541: .btn {
+541: .btn {
+542:     display: inline-flex;
+542:     display: inline-flex;
+543:     align-items: center;
+543:     align-items: center;
+544:     justify-content: center;
+544:     justify-content: center;
+545:     gap: 6px;
+545:     gap: 6px;
+546:     padding: 9px 20px;
+546:     padding: 9px 20px;
+547:     font-size: 0.82rem;
+547:     font-size: 0.82rem;
+548:     font-weight: 600;
+548:     font-weight: 600;
+549:     border: 1px solid transparent;
+549:     border: 1px solid transparent;
+550:     border-radius: var(--radius);
+550:     border-radius: var(--radius);
+551:     cursor: pointer;
+551:     cursor: pointer;
+552:     transition: all var(--transition-fast);
+552:     transition: all var(--transition-fast);
+553:     letter-spacing: 0.02em;
+553:     letter-spacing: 0.02em;
+554:     white-space: nowrap;
+554:     white-space: nowrap;
+555:     line-height: 1.4;
+555:     line-height: 1.4;
+556:     backdrop-filter: blur(10px);
+556:     backdrop-filter: blur(10px);
+557:     -webkit-backdrop-filter: blur(10px);
+557:     -webkit-backdrop-filter: blur(10px);
+558: }
+558: }
+559: 
+559: 
+560: .btn:active:not(:disabled) {
+560: .btn:active:not(:disabled) {
+561:     transform: scale(0.97);
+561:     transform: scale(0.97);
+562: }
+562: }
+563: 
+563: 
+564: .btn:disabled {
+564: .btn:disabled {
+565:     opacity: 0.4;
+565:     opacity: 0.4;
+566:     cursor: not-allowed;
+566:     cursor: not-allowed;
+567: }
+567: }
+568: 
+568: 
+569: /* 主按钮 — 冰蓝实色 */
+569: /*
+
+[… truncated 61519 chars …]

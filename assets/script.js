@@ -636,10 +636,6 @@
     const btnResetAll = document.getElementById('btn-reset-all');
     const btnExportXlsx = document.getElementById('btn-export-xlsx');
     const btnToggleAll = document.getElementById('btn-toggle-all');
-    const assignProgressSection = document.getElementById('assign-progress-section');
-    const progressPercent = document.getElementById('progress-percent');
-    const progressFill = document.getElementById('progress-fill');
-    const progressDetail = document.getElementById('progress-detail');
     const assignTableSection = document.getElementById('assign-table-section');
     const assignTableBody = document.getElementById('assign-table-body');
     const assignEmptyState = document.getElementById('assign-empty-state');
@@ -898,14 +894,12 @@
     function showAssignMainUI() {
         assignUploadSection.classList.add('hidden');
         assignToolbar.classList.remove('hidden');
-        assignProgressSection.classList.remove('hidden');
         assignTableSection.classList.remove('hidden');
     }
 
     function showAssignUploadUI() {
         assignUploadSection.classList.remove('hidden');
         assignToolbar.classList.add('hidden');
-        assignProgressSection.classList.add('hidden');
         assignTableSection.classList.add('hidden');
     }
 
@@ -938,7 +932,6 @@
 
     function renderAssignAll() {
         renderAssignTable();
-        renderAssignProgress();
         renderAssignStats();
         updateToggleButton();
     }
@@ -986,15 +979,6 @@
             </tr>`;
         });
         assignTableBody.innerHTML = html;
-    }
-
-    function renderAssignProgress() {
-        const total = materials.length;
-        const done = materials.filter(m => m.done).length;
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        progressPercent.textContent = pct + '%';
-        progressFill.style.width = pct + '%';
-        progressDetail.textContent = `${done} / ${total} 种材料已完成`;
     }
 
     function renderAssignStats() {
